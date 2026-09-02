@@ -6,9 +6,15 @@
 <title>長時間靜止警報</title>
 <link rel="stylesheet" href="./css/design-system.css" />
 <style>
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #0b0c10 !important;
   color: #e0e0e0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .app-shell {
@@ -24,6 +30,19 @@ body {
   justify-content: flex-start !important;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.page-head h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: #ffffff;
+}
+
+.page-head p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #8e929d;
 }
 
 .btn-gold-outline {
@@ -50,7 +69,6 @@ body {
   color: #f39c12 !important;
 }
 
-
 .btn-gold-action {
   display: inline-flex;
   align-items: center;
@@ -66,6 +84,7 @@ body {
   border-radius: 0px !important;
   cursor: pointer;
   width: 100%;
+  min-height: 44px;
   font-family: inherit;
   letter-spacing: 0.5px;
   transition: all 0.25s ease;
@@ -77,18 +96,28 @@ body {
   color: #f39c12 !important;
 }
 
-/* ---- 左右兩欄網格 ---- */
+/* ---- 左右兩欄網格 (電腦版) ---- */
 .layout {
   display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
+  grid-template-columns: 1.2fr 1fr !important;
   gap: 24px !important;
   align-items: stretch !important;
 }
 
-@media (max-width: 768px) {
-  .layout {
-    grid-template-columns: 1fr !important; 
-  }
+.card {
+  background: #14161d;
+  border: 1px solid #232630;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 16px;
+  margin: 0 0 12px 0;
+  color: #ffffff;
 }
 
 .underline-input-wrapper {
@@ -127,7 +156,6 @@ body {
   -moz-appearance: textfield !important;
 }
 
-/* 統一金黃色上下雙向箭頭圖示 */
 .underline-select-wrapper {
   position: relative;
   border-bottom: 2px solid #d4af37 !important;
@@ -161,100 +189,7 @@ body {
   white-space: nowrap;
 }
 
-/* ---- App icon 閃爍模擬 ---- */
-.phone-mock {
-  width: 220px; 
-  margin: 0 auto;
-  border: 8px solid #050608;
-  border-radius: 28px;
-  background: #0d0e12;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
-
-.phone-mock__screen { 
-  aspect-ratio: 9/17; 
-  position: relative; 
-  padding: 14px; 
-}
-
-.phone-icon-row { 
-  display: flex; 
-  justify-content: flex-end; 
-  margin-bottom: 20px; 
-}
-
-/* 鈴鐺樣式增加手勢與點擊反饋 */
-.bell {
-  width: 36px; 
-  height: 36px; 
-  border-radius: 50%;
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  background: #1a1c24;
-  position: relative;
-  transition: all 0.25s ease;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.bell:hover {
-  background: #252834;
-  transform: scale(1.08);
-  border-color: rgba(241, 196, 15, 0.4);
-}
-
-.bell:active {
-  transform: scale(0.95);
-}
-
-.bell svg {
-  width: 18px;
-  height: 18px;
-  fill: #9e9ea7;
-  transition: fill 0.3s ease;
-}
-
-.bell.blink { 
-  animation: bellBlink 1.2s infinite; 
-  background: rgba(250, 173, 20, 0.25);
-  border-color: #faad14;
-}
-
-.bell.blink svg {
-  fill: #faad14;
-}
-
-@keyframes bellBlink {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 173, 20, 0.7); }
-  50% { box-shadow: 0 0 0 10px rgba(250, 173, 20, 0); }
-}
-
-.toast {
-  position: absolute; 
-  left: 12px; 
-  right: 12px; 
-  top: 58px;
-  background: #181b22;
-  border-left: 3px solid #faad14;
-  border-radius: 4px;
-  padding: 10px 12px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #f8fafc;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-  opacity: 0; 
-  transform: translateY(-8px);
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-.toast.show { 
-  opacity: 1; 
-  transform: translateY(0); 
-  pointer-events: auto;
-}
-
+/* 門檻清單 */
 .threshold-list {
   display: flex;
   flex-direction: column;
@@ -281,7 +216,7 @@ body {
   border: 1px solid rgba(255, 77, 79, 0.4);
   color: #ff7875;
   font-size: 12px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   cursor: pointer;
   border-radius: 0px;
   transition: all 0.2s;
@@ -298,16 +233,218 @@ body {
   padding: 16px;
   margin-top: 14px;
 }
+
+
+.phone-mock {
+  width: 230px; 
+  margin: 12px auto;
+  border: 9px solid #050608;
+  border-radius: 30px;
+  background: #0d0e12;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+  position: relative;
+}
+
+.phone-mock__screen { 
+  aspect-ratio: 9/17; 
+  position: relative; 
+  padding: 16px 14px; 
+  background: linear-gradient(180deg, #141822 0%, #0c0e14 100%);
+}
+
+.phone-icon-row { 
+  display: flex; 
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px; 
+}
+
+.phone-clock-text {
+  font-size: 12px;
+  color: #8e929d;
+  font-weight: 500;
+}
+
+.bell {
+  width: 36px; 
+  height: 36px; 
+  border-radius: 50%;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  background: #1a1c24;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bell svg {
+  width: 18px;
+  height: 18px;
+  fill: #9e9ea7;
+  transition: fill 0.3s ease;
+}
+
+.bell.blink { 
+  animation: bellBlink 1.2s infinite; 
+  background: rgba(250, 173, 20, 0.25);
+  border-color: #faad14;
+}
+.bell.blink svg { fill: #faad14; }
+
+@keyframes bellBlink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 173, 20, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(250, 173, 20, 0); }
+}
+
+.toast {
+  position: absolute; 
+  left: 10px; 
+  right: 10px; 
+  top: 60px;
+  background: rgba(24, 27, 34, 0.95);
+  backdrop-filter: blur(8px);
+  border-left: 3px solid #faad14;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #f8fafc;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  opacity: 0; 
+  transform: translateY(-8px);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+.toast.show { 
+  opacity: 1; 
+  transform: translateY(0); 
+  pointer-events: auto;
+}
+
+
+.mobile-top-banner {
+  position: fixed;
+  top: -140px;
+  left: 12px;
+  right: 12px;
+  z-index: 99999;
+  background: rgba(22, 25, 34, 0.96);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 4px solid var(--alert-1-yellow, #faad14);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+  cursor: pointer;
+  display: none;
+}
+
+.mobile-top-banner.show {
+  transform: translateY(152px);
+}
+
+.m-banner-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(250, 173, 20, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.m-banner-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: #faad14;
+}
+
+.m-banner-content {
+  flex: 1;
+}
+
+.m-banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.m-banner-app-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f1c40f;
+  letter-spacing: 0.5px;
+}
+
+.m-banner-time {
+  font-size: 11px;
+  color: #8e929d;
+}
+
+.m-banner-text {
+  font-size: 13px;
+  color: #ffffff;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr !important; 
+    gap: 16px !important;
+  }
+
+  .app-shell {
+    padding: 16px 14px 40px !important;
+  }
+
+  .page-head h1 {
+    font-size: 22px;
+  }
+
+  .desktop-phone-preview {
+    display: none !important;
+  }
+
+  .mobile-top-banner {
+    display: flex;
+  }
+}
 </style>
 </head>
 <body data-nav-active="06">
 <div id="topnav-mount"></div>
 
+<div class="mobile-top-banner" id="mobileTopBanner" onclick="clearAlarm()">
+  <div class="m-banner-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+    </svg>
+  </div>
+  <div class="m-banner-content">
+    <div class="m-banner-header">
+      <span class="m-banner-app-title">安心看護 · 一級提醒</span>
+      <span class="m-banner-time">剛剛</span>
+    </div>
+    <div class="m-banner-text" id="mBannerMsg">
+      浴室已滯留 10 分鐘，請確認長輩狀況
+    </div>
+  </div>
+</div>
+
 <div class="app-shell">
   <div class="page-head">
     <div>
-      <h1 style="margin:0 0 8px 0; font-size:28px; color: #ffffff;">長時間靜止或異常停留警報</h1>
-      <p class="muted" style="margin:0; font-size:14px; line-height: 1.6; color: #8e929d;">僅推播手機 App 通知並在 UI 上閃爍提示</p>
+      <h1>長時間靜止或異常停留警報</h1>
+      <p>僅推播手機 App 通知並在 UI 上閃爍提示。</p>
     </div>
 
     <a class="btn-gold-outline" href="三階段警報.html">
@@ -316,15 +453,12 @@ body {
   </div>
 
   <div class="layout">
-    <!-- 左側欄：門檻設定與動態新增 -->
-    <div class="card" style="background:#14161d; border:1px solid #232630; border-radius:12px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="card">
       <div>
-        <h3 style="font-size: 16px; margin:0 0 8px 0; color:#ffffff;">各區域靜止時間</h3>
+        <h3 class="card-title">各區域靜止時間</h3>
         
-        <!-- 已設定清單容器 -->
         <div class="threshold-list" id="thresholdList"></div>
 
-        <!-- 新增門檻區域表單（深黑底色 + 金黃底線風格） -->
         <div class="add-zone-box">
           <div style="font-size: 13px; color: #f1c40f; margin-bottom: 12px; font-weight: 500;">
             新增區域監測
@@ -363,25 +497,26 @@ body {
           </button>
         </div>
 
-        <p class="muted" style="margin-top: 14px; font-size: 12px; line-height: 1.5; color:#8e929d;">
+        <p style="margin-top: 14px; font-size: 12px; line-height: 1.5; color:#8e929d;">
           睡眠時段內的靜止不列入計算，超過門檻將直接推播 App。
         </p>
       </div>
 
-      <div style="margin-top: 20px;">
+      <div style="margin-top: 20px; display:flex; flex-direction:column; gap:10px;">
         <button class="btn-gold-action" id="simulateBtn" type="button">
           模擬觸發停留警報
         </button>
       </div>
     </div>
 
-    <!-- 右側欄：照顧者手機端預覽 -->
-    <div class="card" style="background:#14161d; border:1px solid #232630; border-radius:12px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+
+    <div class="card desktop-phone-preview">
       <div>
-        <h3 style="font-size: 16px; margin:0 0 16px 0; color:#ffffff;">照顧者手機端預覽</h3>
+        <h3 class="card-title">照顧者手機端預覽</h3>
         <div class="phone-mock">
           <div class="phone-mock__screen">
             <div class="phone-icon-row">
+              <span class="phone-clock-text" id="phoneClock">09:41</span>
               <div class="bell" id="bell" title="點擊切換警報模擬">
                 <svg viewBox="0 0 24 24">
                   <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
@@ -412,6 +547,7 @@ body {
     { id: "th-2", zone: "客廳", minutes: 45 },
     { id: "th-3", zone: "主臥室－非睡眠時段", minutes: 60 }
   ];
+
   function getThresholds() {
     return JSON.parse(localStorage.getItem("static_thresholds") || JSON.stringify(defaultThresholds));
   }
@@ -425,7 +561,7 @@ body {
     container.innerHTML = "";
 
     if (list.length === 0) {
-      container.innerHTML = `<div class="muted" style="text-align:center; padding:12px; font-size:13px; color:#8e929d;">目前無設定任何門檻</div>`;
+      container.innerHTML = `<div style="text-align:center; padding:12px; font-size:13px; color:#8e929d;">目前無設定任何門檻</div>`;
       return;
     }
 
@@ -486,27 +622,50 @@ body {
 
   const simulateBtn = document.getElementById("simulateBtn");
   const ackBtn = document.getElementById("ackBtn");
+  const ackBtnMobile = document.getElementById("ackBtnMobile");
   const bell = document.getElementById("bell");
   const toast = document.getElementById("toast");
   const toastMsg = document.getElementById("toastMsg");
 
+  const mobileTopBanner = document.getElementById("mobileTopBanner");
+  const mBannerMsg = document.getElementById("mBannerMsg");
+  let bannerTimer = null;
+
+  function isMobileDevice() {
+    return window.innerWidth <= 768;
+  }
+
   function triggerAlarm() {
     const list = getThresholds();
-    if (list.length > 0) {
-      toastMsg.textContent = `${list[0].zone}已滯留 ${list[0].minutes} 分鐘，請確認長輩狀況`;
+    const alertText = list.length > 0
+      ? `${list[0].zone}已滯留 ${list[0].minutes} 分鐘，請確認長輩狀況`
+      : "偵測到異常停留，請確認長輩狀況";
+
+    if (isMobileDevice()) {
+      mBannerMsg.textContent = alertText;
+      mobileTopBanner.classList.add("show");
+      
+      clearTimeout(bannerTimer);
+      bannerTimer = setTimeout(() => {
+        mobileTopBanner.classList.remove("show");
+      }, 5000);
     } else {
-      toastMsg.textContent = "偵測到異常停留，請確認長輩狀況";
+      toastMsg.textContent = alertText;
+      bell.classList.add("blink");
+      toast.classList.add("show");
     }
-    bell.classList.add("blink");
-    toast.classList.add("show");
   }
 
   function clearAlarm() {
     bell.classList.remove("blink");
     toast.classList.remove("show");
+    mobileTopBanner.classList.remove("show");
+    clearTimeout(bannerTimer);
   }
 
   simulateBtn.addEventListener("click", triggerAlarm);
+  ackBtn.addEventListener("click", clearAlarm);
+  ackBtnMobile.addEventListener("click", clearAlarm);
 
   bell.addEventListener("click", () => {
     if (bell.classList.contains("blink")) {
@@ -516,7 +675,14 @@ body {
     }
   });
 
-  ackBtn.addEventListener("click", clearAlarm);
+  function updateTime() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, "0");
+    const m = String(now.getMinutes()).padStart(2, "0");
+    const clockEl = document.getElementById("phoneClock");
+    if (clockEl) clockEl.textContent = `${h}:${m}`;
+  }
+  updateTime();
 
   renderThresholdList();
 </script>

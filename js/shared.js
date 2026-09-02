@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mount.innerHTML = `
     <header class="navbar-header">
       <a class="nav-brand" href="index.html">
-        <span class="brand-title">安心看護</span>
+        <span class="brand-title">Edge-Vision</span>
       </a>
 
       <div class="hamburger-menu-wrapper" id="hamburgerMenuWrapper">
