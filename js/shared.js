@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentPath = window.location.pathname.split("/").pop() || "index.html";
   const decodedPath = decodeURIComponent(currentPath);
 
+  // 判斷是否為首頁
+  const isIndexPage = decodedPath === "" || decodedPath === "index.html";
+
   const navItems = [
     { title: "功能索引", href: "index.html" },
     { title: "即時監看", href: "即時影像.html" },
@@ -19,12 +22,16 @@ document.addEventListener("DOMContentLoaded", () => {
     { title: "高齡友善介面", href: "高齡友善介面.html" }
   ];
 
+  // 若為首頁則不渲染漢堡按鈕與下拉選單，其餘頁面正常顯示
   mount.innerHTML = `
     <header class="navbar-header">
       <a class="nav-brand" href="index.html">
         <span class="brand-title">Edge-Vision</span>
       </a>
 
+      ${
+        !isIndexPage
+          ? `
       <div class="hamburger-menu-wrapper" id="hamburgerMenuWrapper">
         <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="選單">
           <span></span>
@@ -33,13 +40,20 @@ document.addEventListener("DOMContentLoaded", () => {
         </button>
 
         <div class="hamburger-dropdown" id="hamburgerDropdown">
-          ${navItems.map(item => `
-            <a class="dropdown-item ${decodedPath === item.href ? 'active' : ''}" href="${item.href}">
+          ${navItems
+            .map(
+              (item) => `
+            <a class="dropdown-item ${decodedPath === item.href ? "active" : ""}" href="${item.href}">
               <span>${item.title}</span>
             </a>
-          `).join("")}
+          `
+            )
+            .join("")}
         </div>
       </div>
+      `
+          : ""
+      }
     </header>
   `;
 

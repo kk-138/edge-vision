@@ -3,12 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta property="og:title" content="EDGE-Vision" />
 <title>EDGE-Vision</title>
+<meta property="og:title" content="EDGE-Vision" />
+<meta property="og:description" content="輕量化攝影機與電子圍籬照護系統" />
 <link rel="stylesheet" href="css/design-system.css" />
 <style>
+  /* 頂部導航列：只保留左側 Edge-Vision */
+  .custom-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 32px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .custom-brand {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+
+  /* 強制在此頁隱藏三條線漢堡按鈕 */
+  .hamburger-menu-wrapper,
+  .hamburger-btn,
+  #hamburgerBtn,
+  #hamburgerMenuWrapper {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
   .hero {
-    padding: 56px 0 36px;
+    padding: 40px 0 36px;
     border-bottom: 1px solid var(--color-border-soft);
     margin-bottom: 40px;
   }
@@ -19,20 +47,12 @@
     letter-spacing: 0.03em;
     max-width: 100%;
     margin-bottom: 12px;
-
-    /* ---- 漸層文字 ---- */
     background: linear-gradient(135deg, #ffffff 35%, var(--color-primary-light, #ebd07a) 70%, var(--color-primary, #d4af37) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent; 
     color: transparent;                  
     display: inline-block;
-  }
-
-  .hero p { 
-    font-size: 15px; 
-    color: var(--color-text-muted); 
-    margin: 0;
   }
 
   .section-label {
@@ -88,14 +108,13 @@
     margin: 0; 
   }
 
-
   .feature-card:hover {
     transform: translateY(-8px);
     border-color: var(--color-primary) !important;
     background: var(--color-surface-alt) !important;
     box-shadow: 
-      0 18px 25px rgba(0, 0, 0, 0.75),             /* 底層曜黑深度陰影 */
-      0 22px 30px -4px rgba(212, 175, 55, 0.45) !important;   /* 下方大戶金向下投影 */
+      0 18px 25px rgba(0, 0, 0, 0.75),
+      0 22px 30px -4px rgba(212, 175, 55, 0.45) !important;
   }
 
   .feature-card:hover h3 {
@@ -105,7 +124,10 @@
 </head>
 <body data-nav-active="index">
 
-<div id="topnav-mount"></div>
+<!-- 獨立左上角 Logo（無右側漢堡選單） -->
+<header class="custom-navbar">
+  <a class="custom-brand" href="index.html">Edge-Vision</a>
+</header>
 
 <div class="app-shell">
   <section class="hero">
@@ -181,6 +203,5 @@
   </div>
 </div>
 
-<script src="js/shared.js"></script>
 </body>
 </html>
