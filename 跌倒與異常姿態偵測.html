@@ -2,25 +2,36 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>跌倒與異常姿態偵測</title>
 <link rel="stylesheet" href="./css/design-system.css" />
 <style>
+  /* ---- 強制重設與防止橫向溢出 ---- */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #0b0c10;
+    color: #e0e0e0;
+  }
+
   *, *::before, *::after {
-    box-sizing: border-box;
+    box-sizing: border-box !important;
   }
 
   .app-shell {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px 16px;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 24px 16px 60px !important;
   }
 
   .header-title h1 {
-    font-size: 1.75rem;
+    font-size: clamp(1.35rem, 4vw, 1.75rem);
     margin: 0 0 8px;
     line-height: 1.3;
+    color: #ffffff;
   }
 
   .header-title p {
@@ -30,7 +41,7 @@
   }
 
   .back-btn-container { 
-    margin: 16px 0 24px 0; 
+    margin: 16px 0 20px 0; 
   }
 
   .btn-back {
@@ -52,39 +63,45 @@
     background: rgba(212, 175, 55, 0.18);
     color: #ffffff;
     transform: translateY(-2px);
-    box-shadow: none !important;
   }
 
+  /* ---- RWD 核心佈局 (修正 min-width: 0 防撐破) ---- */
   .layout { 
-    display: grid; 
-    grid-template-columns: 1.35fr 1fr; 
-    gap: 20px; 
-    align-items: start; 
+    display: grid !important; 
+    grid-template-columns: 1.3fr 1fr !important; 
+    gap: 20px !important; 
+    align-items: start !important;
+    width: 100% !important;
   }
 
   .card {
-    background: #141418;
-    border: 1px solid var(--color-border, #202027);
-    padding: 20px;
+    background: #141418 !important;
+    border: 1px solid var(--color-border, #202027) !important;
+    padding: 20px !important;
+    min-width: 0 !important;
+    width: 100% !important;
   }
 
+  /* 攝影機滾動標籤 */
   .cam-tabs-container {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 10px;
-    overflow-x: auto;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
     padding: 6px 2px 14px 2px;
     margin: 8px 0 16px 0;
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .cam-tabs-container::-webkit-scrollbar { height: 4px; }
   .cam-tabs-container::-webkit-scrollbar-thumb { background: var(--color-border, #2c2c36); }
 
   .cam-tab-btn {
-    position: relative;
-    flex-shrink: 0;
+    flex: 0 0 auto !important;
     background: #1a1a20;
     border: 1.5px solid var(--color-border, #2c2c36);
     color: var(--color-text-muted, #9e9ea7);
@@ -95,14 +112,12 @@
     cursor: pointer;
     border-radius: 0px;
     outline: none;
-    white-space: nowrap;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .cam-tab-btn:hover {
     color: #ffffff;
     border-color: var(--color-primary-light, #ebd07a);
-    transform: translateY(-1px);
   }
 
   .cam-tab-btn.active {
@@ -113,11 +128,11 @@
     padding: 8px 18px;
     border: 2px solid var(--color-primary, #d4af37) !important;
     box-shadow: 4px 4px 0px var(--color-primary, #d4af37) !important;
-    transform: translateY(-2px);
   }
 
+  /* 畫面預覽 */
   .cam-preview-box {
-    width: 100%;
+    width: 100% !important;
     aspect-ratio: 16/9;
     background: linear-gradient(160deg, #161c2d, #0d121c);
     border: 1px solid var(--color-border, #2c2c36);
@@ -130,8 +145,8 @@
   }
 
   .cam-preview-box svg.silhouette {
-    width: clamp(80px, 15vw, 130px);
-    height: clamp(80px, 15vw, 130px);
+    width: clamp(70px, 16vw, 120px);
+    height: clamp(70px, 16vw, 120px);
     fill: #222d42;
   }
 
@@ -146,11 +161,13 @@
     font-weight: bold;
   }
 
+  /* 表單元件 */
   .form-group {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin-bottom: 16px;
+    min-width: 0;
   }
 
   .form-group label {
@@ -164,7 +181,7 @@
     border-bottom: 2px solid var(--color-primary, #d4af37) !important;
     border-radius: 0 !important;
     color: #ffffff !important;
-    font-size: 15px !important;
+    font-size: 16px !important;
     padding: 8px 4px !important;
     width: 100% !important;
     outline: none !important;
@@ -183,7 +200,7 @@
     color: #ffffff;
     font-weight: bold;
     padding: 14px;
-    width: 100%;
+    width: 100% !important;
     cursor: pointer;
     font-size: 15px;
     border-radius: 0px;
@@ -195,6 +212,7 @@
     box-shadow: 0 0 14px rgba(255, 77, 79, 0.4);
   }
 
+  /* 紀錄清單 */
   .history-header {
     display: flex;
     justify-content: space-between;
@@ -206,6 +224,7 @@
   .history-header h3 {
     margin: 0;
     font-size: 1.1rem;
+    color: #ffffff;
   }
 
   .btn-read-all {
@@ -264,6 +283,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
+  /* 倒數彈窗 */
   .overlay {
     position: fixed; 
     inset: 0; 
@@ -279,7 +299,7 @@
 
   .alert-panel {
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     max-height: 90vh;
     overflow-y: auto;
     background: var(--color-surface, #1a1a20);
@@ -291,8 +311,8 @@
 
   .ring-wrap { 
     position: relative; 
-    width: 130px; 
-    height: 130px; 
+    width: 120px; 
+    height: 120px; 
     margin: 14px auto; 
   }
   .ring-wrap svg { 
@@ -316,7 +336,7 @@
     display: flex; 
     align-items: center; 
     justify-content: center;
-    font-size: 38px;
+    font-size: 36px;
     font-weight: bold;
     color: var(--alert-2-orange, #fa8c16);
   }
@@ -333,39 +353,45 @@
     min-height: 48px;
     transition: all 0.2s;
   }
-  .btn-cancel-alert:hover {
-    background: var(--color-primary-light, #ebd07a);
-  }
 
-  @media (max-width: 860px) {
-    .layout { 
-      grid-template-columns: 1fr; 
-      gap: 16px;
-    }
-    .history-list {
-      max-height: 300px;
-    }
-  }
-
-  @media (max-width: 480px) {
+  /* =========================================================
+     強制覆蓋：行動端 / 平板斷點 (RWD Media Queries)
+     ========================================================= */
+  @media screen and (max-width: 860px) {
     .app-shell {
-      padding: 16px 12px;
+      padding: 16px 12px 40px !important;
     }
-    .header-title h1 {
-      font-size: 1.4rem;
+    .layout { 
+      grid-template-columns: 100% !important; 
+      gap: 16px !important;
     }
     .card {
-      padding: 16px;
+      padding: 16px !important;
     }
-    .alert-panel {
-      padding: 20px 14px;
+    .history-list {
+      max-height: 280px !important;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .header-title h1 {
+      font-size: 1.35rem !important;
+    }
+    .cam-tab-btn {
+      padding: 7px 14px !important;
+      font-size: 13px !important;
+    }
+    .cam-tab-btn.active {
+      padding: 7px 16px !important;
+      font-size: 13px !important;
+      box-shadow: 3px 3px 0px var(--color-primary, #d4af37) !important;
     }
     .ring-wrap {
-      width: 110px;
-      height: 110px;
+      width: 100px;
+      height: 100px;
     }
     .ring-number {
-      font-size: 32px;
+      font-size: 30px;
     }
   }
 </style>
@@ -386,6 +412,7 @@
   </div>
 
   <div class="layout">
+    <!-- 左側：攝影機選擇與模擬觸發 -->
     <div class="card">
       <div class="form-group" style="margin-bottom: 0;">
         <label>切換監控攝影機畫面</label>
@@ -426,6 +453,7 @@
   </div>
 </div>
 
+<!-- 15 秒橙色警報覆蓋層 -->
 <div class="overlay" id="overlay">
   <div class="alert-panel">
     <span class="badge-tag orange" style="display:inline-block; margin-bottom:12px;">二級警報</span>
@@ -470,7 +498,6 @@
     });
   });
 
-
   const defaultHistory = [
     { id: 1, time: "今天 14:22", cam: "浴室走道", status: "已確認無事", unread: true },
     { id: 2, time: "昨天 09:07", cam: "客廳", status: "長輩自行站起", unread: false },
@@ -503,7 +530,6 @@
       container.appendChild(div);
     });
   }
-
 
   document.getElementById("readAllBtn").addEventListener("click", () => {
     const list = getHistory().map(item => ({ ...item, unread: false }));
@@ -552,14 +578,12 @@
     }, 1000);
   }
 
-  // 模擬觸發
   document.getElementById("simulateBtn").addEventListener("click", () => {
     alertLocationTitle.textContent = `${selectedCam} · 偵測到跌倒`;
     overlay.classList.add("is-open");
     startCountdown();
   });
 
-  // 取消警報
   document.getElementById("cancelBtn").addEventListener("click", () => {
     clearInterval(timer);
     overlay.classList.remove("is-open");
