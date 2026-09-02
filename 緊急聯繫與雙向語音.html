@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>緊急聯繫與雙向語音</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  body {
+    background-color: #0b0c10 !important;
+    color: #e0e0e0;
+  }
+
+  .app-shell {
+    max-width: 980px !important;
+    margin: 0 auto !important;
+    padding: 24px 20px 60px !important;
+  }
+
+  .layout { 
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 24px !important;
+    align-items: start !important; 
+  }
+  @media (max-width: 860px) { 
+    .layout { 
+      grid-template-columns: 1fr !important; 
+    } 
+  }
+
+  .card {
+    background: #14161d !important;
+    border: 1px solid #232630 !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    box-shadow: none !important;
+  }
+
+  .contact-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contact-row {
+    display: flex; 
+    align-items: center; 
+    gap: 14px;
+    padding: 12px 4px; 
+    border-bottom: 1px solid #202027;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .contact-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .contact-row:last-child { border-bottom: none; }
+  
+  .contact-avatar {
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%;
+    background: #1c202a;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #f1c40f;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* 刪除按鈕樣式 */
+  .btn-del-contact {
+    background: transparent;
+    border: 1px solid rgba(255, 77, 79, 0.4);
+    color: #ff7875;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .btn-del-contact:hover {
+    background: rgba(255, 77, 79, 0.15);
+    border-color: #ff4d4f;
+  }
+
+  /* 通用金框動作按鈕 */
+  .btn-gold-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+    border-radius: 0px !important;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease;
+    box-shadow: none !important;
+  }
+  .btn-gold-action:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+  }
+
+  .call-stage {
+    text-align: center;
+    padding: 16px 10px;
+  }
+
+  /* 視訊畫面與頭像共用顯示框 */
+  .call-display-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .call-avatar {
+    width: 90px; 
+    height: 90px; 
+    border-radius: 50%;
+    background: #1c202a;
+    border: 2px solid rgba(212, 175, 55, 0.4);
+    color: #f1c40f;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 34px;
+    font-weight: 500;
+    transition: border-color 0.3s ease;
+  }
+  .call-avatar.in-call {
+    border-color: #22c55e;
+  }
+
+  /* 相機視訊播放標籤 */
+  .call-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1.5px solid #d4af37;
+    background: #000;
+    border-radius: 8px;
+    display: none;
+  }
+  .call-display-wrapper.video-active .call-video {
+    display: block;
+  }
+  .call-display-wrapper.video-active .call-avatar {
+    display: none;
+  }
+  
+  .call-controls { 
+    display: flex; 
+    justify-content: center; 
+    gap: 20px; 
+    margin-top: 24px; 
+  }
+  
+  .icon-btn {
+    width: 54px; 
+    height: 54px; 
+    border-radius: 50%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 20px;
+    background: #1c202a;
+    color: #ffffff;
+    border: 1px solid #2d3240;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .icon-btn:hover {
+    background: #282e3d;
+    transform: scale(1.05);
+  }
+
+  /* 二合一通話按鈕樣式 */
+  .icon-btn.call-toggle {
+    background: #1d3326 !important;
+    border: 1.5px solid #22c55e !important;
+    color: #4ade80 !important;
+  }
+  .icon-btn.call-toggle:hover {
+    background: #234231 !important;
+    transform: scale(1.06);
+  }
+  .icon-btn.call-toggle.is-active { 
+    background: #8b2c2c !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.5) !important;
+    color: #fce8e8 !important;
+  }
+  .icon-btn.call-toggle.is-active:hover { 
+    background: #9d3434 !important;
+    transform: scale(1.06);
+  }
+
+  /* 相機啟用狀態 */
+  .icon-btn.active { 
+    background: rgba(212, 175, 55, 0.2) !important; 
+    border-color: #d4af37 !important;
+    color: #f1c40f !important; 
+  }
+
+  /* ========== 彈窗 Pop-up 通用樣式 ========== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 8, 14, 0.88);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .modal-overlay.is-open {
+    display: flex;
+  }
+  .modal-panel {
+    position: relative;
+    width: min(420px, 100%);
+    background: #14161d;
+    border: 1px solid #232630;
+    border-radius: 12px;
+    padding: 28px 24px;
+    box-shadow: none;
+  }
+  .modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #f1c40f;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.2s;
+  }
+  .modal-close-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #f39c12;
+    color: #ffffff;
+  }
+  .underline-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #d4af37;
+    padding: 2px 0 4px 0;
+    margin-bottom: 18px;
+  }
+  .underline-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: inherit;
+    padding: 6px 0px;
+  }
+</style>
+</head>
+<body data-nav-active="10">
+<div id="topnav-mount"></div>
+
+<div class="app-shell">
+  <div class="page-head" style="margin-bottom: 24px;">
+    <div>
+      <h1 style="margin: 0 0 8px 0; font-size: 28px; color: #fff;">緊急聯繫</h1>
+      <p style="margin: 0; font-size: 14px; color: #8e929d; line-height: 1.6;">點選聯絡人可切換通話對象，按下通話鈕即可主動進行雙向語音與視訊連線。</p>
+    </div>
+  </div>
+
+  <div class="grid layout">
+    <!-- 左側：緊急聯絡人清單 -->
+    <div class="card">
+      <h3 style="margin-top: 0; font-size: 16px; color: #fff; margin-bottom: 16px;">緊急聯絡人（依優先順序）</h3>
+      
+      <div class="contact-list" id="contactList">
+        <div class="contact-row" data-name="陳美玲" data-relation="女兒" data-phone="0912-345-678" onclick="selectContact(this)">
+          <div class="contact-avatar">陳</div>
+          <div style="flex:1">
+            <div style="color: #fff; font-weight: 500;">陳美玲</div>
+            <div style="color: #8e929d; font-size: 13px; margin-top: 2px;">女兒 ｜ 0912-345-678</div>
+          </div>
+          <button class="btn-del-contact" onclick="event.stopPropagation(); openDeletePop(this);">刪除</button>
+        </div>
+
+        <div class="contact-row" data-name="陳建國" data-relation="兒子" data-phone="0955-222-111" onclick="selectContact(this)">
+          <div class="contact-avatar">陳</div>
+          <div style="flex:1">
+            <div style="color: #fff; font-weight: 500;">陳建國</div>
+            <div style="color: #8e929d; font-size: 13px; margin-top: 2px;">兒子 ｜ 0955-222-111</div>
+          </div>
+          <button class="btn-del-contact" onclick="event.stopPropagation(); openDeletePop(this);">刪除</button>
+        </div>
+
+        <div class="contact-row" data-name="林小姐" data-relation="居家看護" data-phone="0933-888-000" onclick="selectContact(this)">
+          <div class="contact-avatar">林</div>
+          <div style="flex:1">
+            <div style="color: #fff; font-weight: 500;">林小姐</div>
+            <div style="color: #8e929d; font-size: 13px; margin-top: 2px;">居家看護 ｜ 0933-888-000</div>
+          </div>
+          <button class="btn-del-contact" onclick="event.stopPropagation(); openDeletePop(this);">刪除</button>
+        </div>
+      </div>
+
+      <!-- 新增按鈕 -->
+      <button class="btn-gold-action" id="openAddContactBtn" style="margin-top: 20px;">+ 新增緊急聯絡人</button>
+    </div>
+
+    <!-- 右側：通話狀態與視訊畫面 -->
+    <div class="card">
+      <div id="autoStatus" style="display:none; margin-bottom:16px;">
+        <div style="background: rgba(139, 44, 44, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 10px 14px; border-radius: 6px; font-size: 13px;">
+          ⚠️ 此通話由三級紅色緊急警報自動帶入
+        </div>
+      </div>
+      
+      <div class="call-stage">
+        <!-- 視訊 / 頭像切換容器 -->
+        <div class="call-display-wrapper" id="callDisplayWrapper">
+          <div class="call-avatar" id="activeCallAvatar">陳</div>
+          <video class="call-video" id="callVideoElement" autoplay playsinline muted></video>
+        </div>
+
+        <h3 style="color: #fff; margin: 0 0 6px 0; font-size: 20px;" id="activeCallName">陳美玲</h3>
+        <p style="color: #8e929d; font-size: 14px; margin: 0;" id="callStatusText">待命中（尚未連線）</p>
+        
+        <div class="call-controls">
+          <button class="icon-btn" id="muteBtn" title="靜音">🎤</button>
+          <!-- 二合一撥號／掛斷按鈕 -->
+          <button class="icon-btn call-toggle" id="callToggleBtn" title="撥打電話">📞</button>
+          <!-- 相機視訊切換按鈕 -->
+          <button class="icon-btn" id="camBtn" title="切換電腦相機視訊">📷</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pop-up 1: 新增緊急聯絡人 -->
+<div class="modal-overlay" id="addContactModal">
+  <div class="modal-panel">
+    <button class="modal-close-btn" id="closeContactModal">✕</button>
+    <h3 style="margin: 0 0 18px 0; font-size: 18px; color: #fff;">新增緊急聯絡人</h3>
+    
+    <div>
+      <label style="font-size: 13px; color: #8e929d; display:block; margin-bottom: 4px;">姓名</label>
+      <div class="underline-input-wrapper">
+        <input type="text" id="inputName" class="underline-input" />
+      </div>
+
+      <label style="font-size: 13px; color: #8e929d; display:block; margin-bottom: 4px;">關係 / 稱謂</label>
+      <div class="underline-input-wrapper">
+        <input type="text" id="inputRelation" class="underline-input" />
+      </div>
+
+      <label style="font-size: 13px; color: #8e929d; display:block; margin-bottom: 4px;">電話號碼</label>
+      <div class="underline-input-wrapper">
+        <input type="tel" id="inputPhone" class="underline-input" maxlength="12" />
+      </div>
+
+      <button class="btn-gold-action" id="submitContactBtn" style="margin-top: 10px;">確認新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pop-up 2: 刪除確認彈窗 -->
+<div class="modal-overlay" id="deleteConfirmModal">
+  <div class="modal-panel" style="text-align: center;">
+    <button class="modal-close-btn" id="closeDeleteModal">✕</button>
+    <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #fff;">確認移除聯絡人？</h3>
+    <p style="color: #8e929d; font-size: 14px; margin: 0 0 20px 0;" id="deleteTargetText">確定要將此聯絡人從緊急名單中移除嗎？</p>
+    
+    <div style="display: flex; gap: 12px;">
+      <button class="btn-gold-action" id="confirmDeleteBtn" style="border-color: #ff4d4f !important; color: #ff7875 !important;">確認刪除</button>
+      <button class="btn-gold-action" id="cancelDeleteBtn" style="border-color: #8e929d !important; color: #8e929d !important;">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  // ========== 通話、相機與二合一按鈕控制 ==========
+  const params = new URLSearchParams(location.search);
+  if (params.get("auto") === "1") {
+    document.getElementById("autoStatus").style.display = "block";
+  }
+
+  const callToggleBtn = document.getElementById("callToggleBtn");
+  const camBtn = document.getElementById("camBtn");
+  const statusText = document.getElementById("callStatusText");
+  const activeAvatar = document.getElementById("activeCallAvatar");
+  const activeName = document.getElementById("activeCallName");
+  const callDisplayWrapper = document.getElementById("callDisplayWrapper");
+  const callVideoElement = document.getElementById("callVideoElement");
+
+  let isCalling = false;
+  let isCameraOn = false;
+  let mediaStream = null;
+  let callSeconds = 0;
+  let timerInterval = null;
+
+  function pad(num) {
+    return num.toString().padStart(2, "0");
+  }
+
+  // 停止電腦相機串流
+  function stopCamera() {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      callVideoElement.srcObject = null;
+      mediaStream = null;
+    }
+    isCameraOn = false;
+    callDisplayWrapper.classList.remove("video-active");
+    camBtn.classList.remove("active");
+  }
+
+  // 開啟通話
+  function startCall() {
+    isCalling = true;
+    callToggleBtn.classList.add("is-active");
+    callToggleBtn.title = "掛斷電話";
+    activeAvatar.classList.add("in-call");
+    statusText.textContent = "撥號中…";
+
+    setTimeout(() => {
+      if (!isCalling) return;
+      callSeconds = 0;
+      statusText.textContent = "通話中 · 00:00";
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        callSeconds++;
+        const mins = pad(Math.floor(callSeconds / 60));
+        const secs = pad(callSeconds % 60);
+        statusText.textContent = `通話中 · ${mins}:${secs}`;
+      }, 1000);
+    }, 1200);
+  }
+
+  // 掛斷通話（同時自動關閉鏡頭）
+  function endCall() {
+    isCalling = false;
+    clearInterval(timerInterval);
+    callToggleBtn.classList.remove("is-active");
+    callToggleBtn.title = "撥打電話";
+    activeAvatar.classList.remove("in-call");
+    statusText.textContent = "通話已結束";
+    stopCamera();
+  }
+
+  callToggleBtn.addEventListener("click", () => {
+    if (!isCalling) {
+      startCall();
+    } else {
+      endCall();
+    }
+  });
+
+  // 切換電腦相機鏡頭
+  camBtn.addEventListener("click", async () => {
+    if (!isCameraOn) {
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        callVideoElement.srcObject = mediaStream;
+        isCameraOn = true;
+        callDisplayWrapper.classList.add("video-active");
+        camBtn.classList.add("active");
+      } catch (err) {
+        alert("無法開啟電腦相機，請確認瀏覽器已允許攝影機權限！");
+        console.error(err);
+      }
+    } else {
+      stopCamera();
+    }
+  });
+
+  // 點選聯絡人列切換通話對象
+  window.selectContact = function(row) {
+    if (isCalling) endCall();
+    const name = row.dataset.name || "聯絡人";
+    activeName.textContent = name;
+    activeAvatar.textContent = name.charAt(0);
+    statusText.textContent = "待命中（尚未連線）";
+  };
+
+  // 靜音切換
+  let muted = false;
+  document.getElementById("muteBtn").addEventListener("click", (e) => {
+    muted = !muted;
+    e.currentTarget.classList.toggle("active", muted);
+  });
+
+  // ========== 手機號碼自動格式化 ==========
+  const inputPhone = document.getElementById("inputPhone");
+  inputPhone.addEventListener("input", (e) => {
+    let raw = e.target.value.replace(/\D/g, "");
+    if (raw.length > 10) raw = raw.substring(0, 10);
+    
+    let formatted = "";
+    if (raw.length <= 4) {
+      formatted = raw;
+    } else if (raw.length <= 7) {
+      formatted = `${raw.slice(0, 4)}-${raw.slice(4)}`;
+    } else {
+      formatted = `${raw.slice(0, 4)}-${raw.slice(4, 7)}-${raw.slice(7)}`;
+    }
+    e.target.value = formatted;
+  });
+
+  // ========== 刪除 Pop-up 互動邏輯 ==========
+  const deleteModal = document.getElementById("deleteConfirmModal");
+  const closeDeleteModalBtn = document.getElementById("closeDeleteModal");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  const deleteTargetText = document.getElementById("deleteTargetText");
+  let rowToDelete = null;
+
+  window.openDeletePop = function(btn) {
+    rowToDelete = btn.closest(".contact-row");
+    const name = rowToDelete.dataset.name || "該聯絡人";
+    deleteTargetText.textContent = `確定要將「${name}」從緊急名單中移除嗎？`;
+    deleteModal.classList.add("is-open");
+  };
+
+  function closeDeletePop() {
+    deleteModal.classList.remove("is-open");
+    rowToDelete = null;
+  }
+
+  closeDeleteModalBtn.addEventListener("click", closeDeletePop);
+  cancelDeleteBtn.addEventListener("click", closeDeletePop);
+
+  confirmDeleteBtn.addEventListener("click", () => {
+    if (rowToDelete) {
+      rowToDelete.remove();
+    }
+    closeDeletePop();
+  });
+
+  // ========== 新增 Pop-up 互動邏輯 ==========
+  const addModal = document.getElementById("addContactModal");
+  const openModalBtn = document.getElementById("openAddContactBtn");
+  const closeModalBtn = document.getElementById("closeContactModal");
+  const submitContactBtn = document.getElementById("submitContactBtn");
+  const contactList = document.getElementById("contactList");
+
+  openModalBtn.addEventListener("click", () => {
+    addModal.classList.add("is-open");
+  });
+
+  function closeAddModal() {
+    addModal.classList.remove("is-open");
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputRelation").value = "";
+    document.getElementById("inputPhone").value = "";
+  }
+
+  closeModalBtn.addEventListener("click", closeAddModal);
+
+  submitContactBtn.addEventListener("click", () => {
+    const name = document.getElementById("inputName").value.trim();
+    const relation = document.getElementById("inputRelation").value.trim();
+    const phone = document.getElementById("inputPhone").value.trim();
+
+    if (!name || !phone) {
+      alert("請填寫姓名與電話號碼！");
+      return;
+    }
+
+    const avatarChar = name.charAt(0);
+
+    const newRow = document.createElement("div");
+    newRow.className = "contact-row";
+    newRow.dataset.name = name;
+    newRow.dataset.relation = relation;
+    newRow.dataset.phone = phone;
+    newRow.setAttribute("onclick", "selectContact(this)");
+    newRow.innerHTML = `
+      <div class="contact-avatar">${avatarChar}</div>
+      <div style="flex:1">
+        <div style="color: #fff; font-weight: 500;">${name}</div>
+        <div style="color: #8e929d; font-size: 13px; margin-top: 2px;">${relation ? relation + ' ｜ ' : ''}${phone}</div>
+      </div>
+      <button class="btn-del-contact" onclick="event.stopPropagation(); openDeletePop(this);">刪除</button>
+    `;
+
+    contactList.appendChild(newRow);
+    closeAddModal();
+  });
+</script>
+</body>
+</html>

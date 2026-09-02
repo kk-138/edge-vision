@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>跌倒與異常姿態偵測 — 安心看護</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  /* ---- 返回按鈕 ---- */
+  .back-btn-container { margin: 20px 0 32px 0; }
+
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(26, 26, 32, 0.85);
+    border: 1.5px solid var(--color-primary, #d4af37);
+    color: var(--color-primary-light, #ebd07a);
+    padding: 9px 20px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 0px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    transition: all 0.25s ease;
+  }
+
+  .btn-back:hover {
+    background: rgba(212, 175, 55, 0.18);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: none !important;
+  }
+
+  /* ---- 版面配置 ---- */
+  .layout { 
+    display: grid; 
+    grid-template-columns: 1.4fr 1fr; 
+    gap: 24px; 
+    align-items: start; 
+  }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  .cam-tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    overflow-x: auto;
+    padding: 10px 4px 16px 4px;
+    margin: 8px 0 16px 0;
+    scrollbar-width: thin;
+  }
+
+  .cam-tabs-container::-webkit-scrollbar { height: 4px; }
+  .cam-tabs-container::-webkit-scrollbar-thumb { background: var(--color-border, #2c2c36); }
+
+  .cam-tab-btn {
+    position: relative;
+    flex-shrink: 0;
+    background: #1a1a20;
+    border: 1.5px solid var(--color-border, #2c2c36);
+    color: var(--color-text-muted, #9e9ea7);
+    padding: 10px 20px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0px;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cam-tab-btn:hover {
+    color: #ffffff;
+    border-color: var(--color-primary-light, #ebd07a);
+    transform: translateY(-2px);
+  }
+
+  .cam-tab-btn.active {
+    background: #ffffff !important;
+    color: #0d0d0f !important;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: 2px solid var(--color-primary, #d4af37) !important;
+    transform: translateY(-4px);
+    box-shadow: 6px 6px 0px var(--color-primary, #d4af37) !important;
+  }
+
+  /* ---- 攝影機畫面預覽 ---- */
+  .cam-preview-box {
+    aspect-ratio: 16/9;
+    background: linear-gradient(160deg, #161c2d, #0d121c);
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+    margin: 14px 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cam-preview-box svg.silhouette {
+    width: 130px;
+    height: 130px;
+    fill: #222d42;
+  }
+
+  .live-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(239, 68, 68, 0.85);
+    color: #fff;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 0px;
+  }
+
+  /* ---- 表單輸入框 ---- */
+  .underline-input {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid var(--color-primary, #d4af37) !important;
+    border-radius: 0 !important;
+    color: #ffffff !important;
+    font-size: 15px !important;
+    padding: 8px 4px !important;
+    width: 100% !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-family: inherit;
+    transition: border-color 0.25s ease;
+  }
+
+  .underline-input:focus {
+    border-bottom-color: var(--color-primary-light, #ebd07a) !important;
+    background: rgba(212, 175, 55, 0.05) !important;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    color: var(--color-text-muted, #9e9ea7);
+  }
+
+  /* ---- 按鈕樣式 ---- */
+  .btn-danger-simulate {
+    background: #ff4d4f;
+    border: 1px solid #ff4d4f;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 12px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 0px;
+    transition: all 0.2s ease;
+  }
+  .btn-danger-simulate:hover {
+    background: #ff7875;
+    box-shadow: 0 0 14px rgba(255, 77, 79, 0.4);
+  }
+
+  /* ---- 近期紀錄清單 ---- */
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .btn-read-all {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-read-all:hover {
+    color: var(--color-primary-light);
+    border-color: var(--color-primary);
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 380px;
+    overflow-y: auto;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--color-bg-elevated, #16161a);
+    border: 1px solid var(--color-border-soft, #202027);
+    font-size: 13px;
+    transition: all 0.2s ease;
+  }
+  .history-item.unread {
+    border-left: 3px solid var(--alert-2-orange, #fa8c16);
+    background: rgba(250, 140, 22, 0.05);
+  }
+
+  .badge-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .badge-tag.orange {
+    background: rgba(250, 140, 22, 0.15);
+    color: #fa8c16;
+    border: 1px solid rgba(250, 140, 22, 0.3);
+  }
+  .badge-tag.muted {
+    background: rgba(255, 255, 255, 0.05);
+    color: #8c8c8c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* ---- 15 秒警報覆蓋層 ---- */
+  .overlay {
+    position: fixed; 
+    inset: 0; 
+    background: rgba(6, 8, 14, 0.94);
+    backdrop-filter: blur(8px);
+    display: none; 
+    align-items: center; 
+    justify-content: center;
+    z-index: 10000; 
+    padding: 20px;
+  }
+  .overlay.is-open { display: flex; }
+
+  .alert-panel {
+    width: min(440px, 100%);
+    background: var(--color-surface, #1a1a20);
+    border: 1.5px solid var(--alert-2-orange, #fa8c16);
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(250, 140, 22, 0.25);
+  }
+
+  .ring-wrap { 
+    position: relative; 
+    width: 140px; 
+    height: 140px; 
+    margin: 16px auto; 
+  }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 8; }
+  .ring-progress { 
+    fill: none; 
+    stroke: var(--alert-2-orange, #fa8c16); 
+    stroke-width: 8; 
+    stroke-linecap: round; 
+    stroke-dasharray: 377;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+  }
+  .ring-number {
+    position: absolute; 
+    inset: 0; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 42px;
+    font-weight: bold;
+    color: var(--alert-2-orange, #fa8c16);
+  }
+
+  .btn-cancel-alert {
+    background: var(--color-primary, #d4af37);
+    border: 1px solid var(--color-primary);
+    color: #0d0d0f;
+    font-weight: bold;
+    padding: 12px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s;
+  }
+  .btn-cancel-alert:hover {
+    background: var(--color-primary-light, #ebd07a);
+  }
+</style>
+</head>
+<body data-nav-active="05">
+<div id="topnav-mount"></div>
+
+<div class="app-shell">
+  <div>
+    <h1>跌倒與異常姿態即時偵測</h1>
+    <p>偵測到跌倒姿態後觸發二級橙色警報，進入 15 秒可取消倒數。</p>
+  </div>
+
+  <div class="back-btn-container">
+    <a class="btn-back" href="即時影像.html">
+      <span>←</span> 回到監看
+    </a>
+  </div>
+
+  <div class="grid layout">
+    <!-- 左側：攝影機選擇與模擬觸發 -->
+    <div class="card">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>切換監控攝影機畫面</label>
+        <div class="cam-tabs-container" id="camTabsContainer">
+          <button class="cam-tab-btn" type="button" data-cam="客廳">客廳</button>
+          <button class="cam-tab-btn" type="button" data-cam="餐廳">餐廳</button>
+          <button class="cam-tab-btn" type="button" data-cam="廚房">廚房</button>
+          <button class="cam-tab-btn" type="button" data-cam="主臥室">主臥室</button>
+          <button class="cam-tab-btn active" type="button" data-cam="浴室走道">浴室走道</button>
+          <button class="cam-tab-btn" type="button" data-cam="樓梯口">樓梯口</button>
+          <button class="cam-tab-btn" type="button" data-cam="書房">書房</button>
+          <button class="cam-tab-btn" type="button" data-cam="陽台">陽台</button>
+          <button class="cam-tab-btn" type="button" data-cam="大門玄關">大門玄關</button>
+        </div>
+      </div>
+
+      <div class="cam-preview-box">
+        <span class="live-badge">● LIVE</span>
+        <svg class="silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmSec">異常姿態確認時間（秒）</label>
+        <input type="number" id="confirmSec" class="underline-input" value="3" min="1" max="10" />
+      </div>
+
+      <button class="btn-danger-simulate" id="simulateBtn" type="button">模擬偵測到跌倒</button>
+    </div>
+
+    <!-- 右側：近期偵測紀錄 -->
+    <div class="card">
+      <div class="history-header">
+        <h3 style="margin: 0;">近期偵測紀錄</h3>
+        <button class="btn-read-all" id="readAllBtn" type="button">全部標為已讀</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 秒橙色警報覆蓋層 -->
+<div class="overlay" id="overlay">
+  <div class="alert-panel">
+    <span class="badge-tag orange" style="display:inline-block; margin-bottom:12px;">二級警報</span>
+    <h2 style="margin:0 0 4px; color:#ffffff;" id="alertLocationTitle">浴室走道 · 偵測到跌倒</h2>
+
+    <div class="ring-wrap">
+      <svg width="140" height="140">
+        <circle class="ring-track" cx="70" cy="70" r="60"></circle>
+        <circle class="ring-progress" id="ringProgress" cx="70" cy="70" r="60"></circle>
+      </svg>
+      <div class="ring-number" id="ringNumber">15</div>
+    </div>
+
+    <p class="muted" style="font-size:12px; margin-bottom:18px;">
+      倒數結束未取消將撥打緊急聯絡人並推播通知
+    </p>
+
+    <button class="btn-cancel-alert" id="cancelBtn" type="button">我已確認，取消警報</button>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  // 1. 綁定 Tab 切換與 URL 參數
+  let selectedCam = "客廳";
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialCam = urlParams.get("cam");
+  if (initialCam) {
+    selectedCam = initialCam;
+  }
+
+  const tabBtns = document.querySelectorAll(".cam-tab-btn");
+  tabBtns.forEach(btn => {
+    if (btn.getAttribute("data-cam") === selectedCam) {
+      tabBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    btn.addEventListener("click", () => {
+      tabBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedCam = btn.getAttribute("data-cam");
+    });
+  });
+
+  // 2. 歷史紀錄系統 (localStorage)
+  const defaultHistory = [
+    { id: 1, time: "今天 14:22", cam: "浴室走道", status: "已確認無事", unread: true },
+    { id: 2, time: "昨天 09:07", cam: "客廳", status: "長輩自行站起", unread: false },
+    { id: 3, time: "3天前 21:40", cam: "主臥室", status: "已確認無事", unread: false }
+  ];
+
+  function getHistory() {
+    return JSON.parse(localStorage.getItem("fall_detection_history") || JSON.stringify(defaultHistory));
+  }
+
+  function saveHistory(list) {
+    localStorage.setItem("fall_detection_history", JSON.stringify(list));
+  }
+
+  function renderHistory() {
+    const list = getHistory();
+    const container = document.getElementById("historyList");
+    container.innerHTML = "";
+
+    list.forEach(item => {
+      const div = document.createElement("div");
+      div.className = `history-item ${item.unread ? 'unread' : ''}`;
+      div.innerHTML = `
+        <div style="flex:1;">
+          <div style="color:#ffffff; font-weight:500;">${item.cam} · 異常跌倒姿態</div>
+          <div class="muted" style="font-size:12px;">${item.time}</div>
+        </div>
+        <span class="badge-tag ${item.unread ? 'orange' : 'muted'}">${item.status}</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // 全部已讀
+  document.getElementById("readAllBtn").addEventListener("click", () => {
+    const list = getHistory().map(item => ({ ...item, unread: false }));
+    saveHistory(list);
+    renderHistory();
+  });
+
+  // 3. 15 秒倒數核心邏輯
+  const overlay = document.getElementById("overlay");
+  const ringProgress = document.getElementById("ringProgress");
+  const ringNumber = document.getElementById("ringNumber");
+  const alertLocationTitle = document.getElementById("alertLocationTitle");
+
+  let timer = null;
+  const TOTAL_SECONDS = 15;
+  const CIRCLE_LENGTH = 2 * Math.PI * 60; // 376.99
+  let currentRemaining = TOTAL_SECONDS;
+
+  ringProgress.style.strokeDasharray = CIRCLE_LENGTH;
+
+  function startCountdown() {
+    currentRemaining = TOTAL_SECONDS;
+    ringNumber.textContent = currentRemaining;
+    ringProgress.style.strokeDashoffset = 0;
+
+    clearInterval(timer);
+    timer = setInterval(() => {
+      currentRemaining--;
+      ringNumber.textContent = currentRemaining;
+
+      const offset = CIRCLE_LENGTH * (1 - (currentRemaining / TOTAL_SECONDS));
+      ringProgress.style.strokeDashoffset = offset;
+
+      if (currentRemaining <= 0) {
+        clearInterval(timer);
+        const list = getHistory();
+        list.unshift({
+          id: Date.now(),
+          time: "剛剛",
+          cam: selectedCam,
+          status: "倒數結束自動撥號",
+          unread: true
+        });
+        saveHistory(list);
+        window.location.href = `緊急聯繫與雙向語音.html?auto=1&cam=${encodeURIComponent(selectedCam)}`;
+      }
+    }, 1000);
+  }
+
+  // 模擬觸發
+  document.getElementById("simulateBtn").addEventListener("click", () => {
+    alertLocationTitle.textContent = `${selectedCam}偵測到跌倒`;
+    overlay.classList.add("is-open");
+    startCountdown();
+  });
+
+  // 取消警報
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    clearInterval(timer);
+    overlay.classList.remove("is-open");
+
+    const list = getHistory();
+    list.unshift({
+      id: Date.now(),
+      time: "剛剛",
+      cam: selectedCam,
+      status: "手動確認取消",
+      unread: true
+    });
+    saveHistory(list);
+    renderHistory();
+  });
+
+  // 初始化執行
+  renderHistory();
+</script>
+</body>
+</html>

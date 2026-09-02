@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>離床與夜間活動監測</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  /* ========== 圖二風格：金黃細框按鈕 ========== */
+  .page-head {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .btn-gold-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px solid #d4af37; /* 金黃色細外框 */
+    color: #f1c40f;              /* 金黃色字體 */
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    border-radius: 0px;          /* 俐落方角 */
+    width: fit-content;
+  }
+  .btn-gold-outline:hover {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: #f39c12;
+    color: #f39c12;
+  }
+  /* ============================================== */
+
+  /* ========== 圖一風格：金黃底線自訂下拉選單/輸入框 ========== */
+  .underline-field-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .underline-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-bottom: 2px solid #d4af37; /* 金黃色底線 */
+    padding: 4px 0px 6px 0px;
+    background: transparent;
+  }
+
+  .underline-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 400;
+    font-family: inherit;
+    padding-right: 28px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    min-width: 90px;
+  }
+
+  /* 自訂上下雙向金黃箭頭 */
+  .underline-select-wrapper::after {
+    content: "▲\A▼";
+    white-space: pre;
+    font-size: 7px;
+    line-height: 8px;
+    color: #f1c40f;
+    position: absolute;
+    right: 6px;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .underline-input option {
+    background-color: #10151f;
+    color: #ffffff;
+    padding: 10px;
+  }
+
+  .underline-unit {
+    color: #ffffff;
+    font-size: 18px;
+    margin-left: 8px;
+    letter-spacing: 1px;
+  }
+  /* ========================================================= */
+
+  .layout { 
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px;
+  }
+  @media (max-width: 860px) { 
+    .layout { 
+      grid-template-columns: 1fr; 
+    } 
+  }
+
+  .timeline { position: relative; padding-left: 22px; margin-top: 14px; }
+  .timeline::before {
+    content: ""; position: absolute; left: 6px; top: 4px; bottom: 4px;
+    width: 2px; background: var(--color-border, #2d3748);
+  }
+  .timeline-item { position: relative; padding-bottom: 22px; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item::before {
+    content: ""; position: absolute; left: -22px; top: 3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--color-primary, #3b82f6);
+    box-shadow: 0 0 0 3px var(--color-bg-elevated, #10151f);
+  }
+  .timeline-item.warn::before { background: var(--alert-2-orange, #f97316); }
+  .timeline-item time { font-size: 12px; color: var(--color-text-faint, #8a99ad); display:block; margin-bottom: 2px; }
+</style>
+</head>
+<body data-nav-active="08">
+<div id="topnav-mount"></div>
+
+<div class="app-shell" style="max-width: 1000px; margin: 0 auto; padding: 24px 16px;">
+  <!-- 頁面頂部：標題與圖二樣式按鈕 -->
+  <div class="page-head">
+    <div>
+      <h1 style="margin: 0 0 8px 0; font-size: 28px;">離床與夜間活動監測</h1>
+      <p class="muted" style="margin: 0; font-size: 14px; line-height: 1.6;">記錄夜間離床/返回時間，深夜開門將觸發二級警報</p>
+    </div>
+    <!-- 圖二風格：回到/查看機制按鈕 -->
+    <a class="btn-gold-outline" href="三階段警報.html">
+      ← 查看機制
+    </a>
+  </div>
+
+  <div class="layout">
+    <!-- 左側：活動時間軸 -->
+    <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--color-border, #2d3748); border-radius:12px; padding:20px;">
+      <h3 style="margin-top:0; font-size:16px;">今晚活動時間軸</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <time>23:14</time>
+          就寢
+        </div>
+        <div class="timeline-item">
+          <time>01:42</time>
+          離床 → 前往浴室
+        </div>
+        <div class="timeline-item">
+          <time>01:47</time>
+          返回床鋪
+        </div>
+        <div class="timeline-item warn">
+          <time>03:05</time>
+          偵測到大門開啟
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：監測時段與提醒時間設定（圖一樣式） -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+      <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--color-border, #2d3748); border-radius:12px; padding:20px;">
+        <h3 style="margin-top:0; font-size:16px;">夜間時段與提醒設定</h3>
+        
+        <!-- 監測時段（金黃底線風格） -->
+        <div style="margin-bottom: 24px;">
+          <label style="display:block; font-size:13px; color:var(--color-text-faint, #8a99ad);">夜間監測時段</label>
+          <div class="underline-field-group">
+            <div class="underline-select-wrapper">
+              <select class="underline-input" style="min-width: 100px;">
+                <option value="21:00">21:00</option>
+                <option value="22:00" selected>22:00</option>
+                <option value="23:00">23:00</option>
+              </select>
+            </div>
+            <span style="color:var(--color-text-faint, #8a99ad); font-size:16px;">至</span>
+            <div class="underline-select-wrapper">
+              <select class="underline-input" style="min-width: 100px;">
+                <option value="05:00">05:00</option>
+                <option value="06:00" selected>06:00</option>
+                <option value="07:00">07:00</option>
+                <option value="08:00">08:00</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 離床未返回提醒時間（圖一風格） -->
+        <div>
+          <label style="display:block; font-size:13px; color:var(--color-text-faint, #8a99ad);">離床未返回提醒空間與時間</label>
+          <div class="underline-field-group">
+            <!-- 空間選擇 -->
+            <div class="underline-select-wrapper">
+              <select class="underline-input" style="min-width: 90px;">
+                <option value="浴室" selected>浴室</option>
+                <option value="客廳">客廳</option>
+                <option value="廚房">廚房</option>
+                <option value="走道">走道</option>
+              </select>
+            </div>
+
+            <!-- 時間選擇與單位 -->
+            <div style="display:flex; align-items:flex-end;">
+              <div class="underline-select-wrapper">
+                <select class="underline-input" style="min-width: 70px;">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="15" selected>15</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                  <option value="45">45</option>
+                  <option value="60">60</option>
+                </select>
+              </div>
+              <span class="underline-unit">分鐘</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 警報卡片 -->
+      <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--alert-2-orange, #f97316); border-radius:12px; padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span style="background:rgba(249, 115, 22, 0.2); color:#f97316; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">二級警報</span>
+            <h3 style="margin:8px 0 4px 0; font-size:16px;">深夜開門事件</h3>
+            <p class="muted" style="margin:0; font-size:13px;">03:05 大門玄關</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+</body>
+</html>

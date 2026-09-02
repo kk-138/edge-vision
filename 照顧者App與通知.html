@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>照顧者通知中心</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  body {
+    background-color: #0b0c10 !important;
+    color: #e0e0e0;
+  }
+
+  .app-shell {
+    max-width: 980px !important;
+    margin: 0 auto !important;
+    padding: 24px 20px 60px !important;
+  }
+
+  .page-head {
+    margin-bottom: 24px;
+  }
+  .page-head h1 {
+    font-size: 28px;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+  }
+  .page-head p {
+    font-size: 14px;
+    color: #8e929d;
+    margin: 0;
+  }
+
+  /* 頂部操作與篩選列 */
+  .filter-bar-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .filters {
+    display: flex !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* ========== 符合大小的長方形篩選按鈕 ========== */
+  .filter-chip {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 8px 18px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    color: #8e929d !important;
+    background: #14161d !important;
+    border: 1.5px solid #2d3240 !important;
+    border-radius: 0px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+  }
+
+  .filter-chip:hover {
+    color: #ffffff !important;
+    background: #1a1e28 !important;
+    border-color: #4a5568 !important;
+  }
+
+  /* 選中狀態 */
+  .filter-chip.active {
+    background: rgba(212, 175, 55, 0.1) !important;
+    border-color: #d4af37 !important;
+    color: #f1c40f !important;            
+  }
+
+  .filter-chip[data-level="1"].active {
+    background: rgba(250, 173, 20, 0.1) !important;
+    border-color: var(--alert-1-yellow, #faad14) !important;
+    color: var(--alert-1-yellow, #faad14) !important;
+  }
+
+  .filter-chip[data-level="2"].active {
+    background: rgba(249, 115, 22, 0.1) !important;
+    border-color: var(--alert-2-orange, #f97316) !important;
+    color: var(--alert-2-orange, #f97316) !important;
+  }
+
+  .filter-chip[data-level="3"].active {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: var(--alert-3-red, #ef4444) !important;
+    color: var(--alert-3-red, #ef4444) !important;
+  }
+
+  /* 全部標記已讀按鈕 */
+  .btn-gold-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+    border-radius: 0px !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none !important;
+  }
+  .btn-gold-outline:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+  }
+
+  /* 卡片與通知列表 */
+  .card {
+    background: #14161d !important;
+    border: 1px solid #232630 !important;
+    border-radius: 12px !important;
+    padding: 8px 16px !important;
+    box-shadow: none !important;
+  }
+
+  .notif-item {
+    display: grid;
+    grid-template-columns: 4px 56px 1fr auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 10px;
+    border-bottom: 1px solid #202027;
+    transition: opacity 0.3s ease, background 0.2s ease;
+  }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item.is-read {
+    opacity: 0.45;
+  }
+  
+  .notif-item__bar { align-self: stretch; border-radius: 2px; }
+  .notif-item__bar.l1 { background: var(--alert-1-yellow, #faad14); }
+  .notif-item__bar.l2 { background: var(--alert-2-orange, #f97316); }
+  .notif-item__bar.l3 { background: var(--alert-3-red, #ef4444); }
+  
+  .notif-item__thumb {
+    width: 56px; 
+    height: 40px; 
+    border-radius: 6px;
+    background: linear-gradient(160deg, #1c202a, #101217);
+    border: 1px solid #232630;
+  }
+  
+  .notif-item__title { 
+    font-size: 14px; 
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 4px; 
+    text-decoration: none;
+    display: block;
+  }
+  .notif-item__meta { 
+    font-size: 12px; 
+    color: #8e929d; 
+  }
+  .notif-item__status { 
+    font-size: 13px; 
+    font-weight: 500;
+    margin-right: 6px;
+  }
+
+  /* 單項已讀按鈕 */
+  .btn-read-toggle {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #f1c40f;
+    font-size: 12px;
+    padding: 6px 14px;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-shadow: none !important;
+  }
+  .btn-read-toggle:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: #f39c12;
+    color: #f39c12;
+  }
+  .notif-item.is-read .btn-read-toggle {
+    border-color: #4a5568;
+    color: #8e929d;
+    background: transparent;
+  }
+</style>
+</head>
+<body data-nav-active="12">
+<div id="topnav-mount"></div>
+
+<div class="app-shell">
+  <div class="page-head">
+    <div>
+      <h1>警報歷史紀錄</h1>
+      <p>彙整所有偵測功能觸發的一/二/三級警報事件。</p>
+    </div>
+  </div>
+
+  <!-- 長方形篩選按鈕與全部已讀按鈕 -->
+  <div class="filter-bar-wrapper">
+    <div class="filters" id="filters">
+      <div class="filter-chip active" data-level="all">全部</div>
+      <div class="filter-chip" data-level="1">一級警報</div>
+      <div class="filter-chip" data-level="2">二級警報</div>
+      <div class="filter-chip" data-level="3">三級警報</div>
+    </div>
+
+    <button class="btn-gold-outline" id="markAllReadBtn">
+      全部標記已讀
+    </button>
+  </div>
+
+  <!-- 通知清單容器 -->
+  <div class="card" id="notifList"></div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  const NOTIFS = [
+    { id: "n1", level: 3, title: "跌倒事件 → 自動撥打陳美玲", meta: "浴室走道 · 今天 03:12", status: "已接通", isRead: false },
+    { id: "n2", level: 2, title: "深夜開門事件", meta: "大門玄關 · 今天 03:05", status: "已取消警報", isRead: false },
+    { id: "n3", level: 1, title: "異常滯留提醒", meta: "浴室 · 今天 14:22", status: "已確認", isRead: false },
+    { id: "n4", level: 2, title: "偵測到跌倒姿態", meta: "客廳 · 昨天 09:07", status: "已標記誤報", isRead: false },
+    { id: "n5", level: 1, title: "異常滯留提醒", meta: "客廳沙發 · 昨天 16:40", status: "已確認", isRead: false },
+    { id: "n6", level: 2, title: "危險區域越界（樓梯口）", meta: "樓梯口 · 3天前 21:12", status: "已取消警報", isRead: false },
+  ];
+
+  let currentFilter = "all";
+
+  function statusColor(level) {
+    return level === 3 ? "var(--alert-3-red, #ef4444)" : level === 2 ? "var(--alert-2-orange, #f97316)" : "var(--alert-1-yellow, #faad14)";
+  }
+
+  function render(filter) {
+    currentFilter = filter;
+    const list = document.getElementById("notifList");
+    list.innerHTML = "";
+    
+    const filtered = NOTIFS.filter((n) => filter === "all" || n.level === Number(filter));
+
+    filtered.forEach((n) => {
+      const item = document.createElement("div");
+      item.className = `notif-item ${n.isRead ? "is-read" : ""}`;
+      item.dataset.id = n.id;
+      item.innerHTML = `
+        <div class="notif-item__bar l${n.level}"></div>
+        <div class="notif-item__thumb"></div>
+        <div>
+          <div class="notif-item__title">${n.title}</div>
+          <div class="notif-item__meta">${n.meta}</div>
+        </div>
+        <div class="notif-item__status" style="color:${statusColor(n.level)}">${n.status}</div>
+        <button class="btn-read-toggle" onclick="toggleRead('${n.id}')">
+          ${n.isRead ? "已讀取" : "標記已讀"}
+        </button>
+      `;
+      list.appendChild(item);
+    });
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<p style="padding:24px; color:#8e929d; text-align:center; margin:0;">此篩選條件下沒有紀錄</p>';
+    }
+  }
+
+  // 單項已讀切換
+  window.toggleRead = function(id) {
+    const item = NOTIFS.find(n => n.id === id);
+    if (item) {
+      item.isRead = !item.isRead;
+      render(currentFilter);
+    }
+  };
+
+  // 全部標記已讀
+  document.getElementById("markAllReadBtn").addEventListener("click", () => {
+    NOTIFS.forEach(n => n.isRead = true);
+    render(currentFilter);
+  });
+
+  // 篩選切換
+  document.getElementById("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest(".filter-chip");
+    if (!chip) return;
+    document.querySelectorAll(".filter-chip").forEach((c) => c.classList.remove("active"));
+    chip.classList.add("active");
+    render(chip.dataset.level);
+  });
+
+  render("all");
+</script>
+</body>
+</html>

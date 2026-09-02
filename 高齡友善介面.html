@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>年長者使用介面</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  :root {
+    --base-font-size: 16px;
+  }
+
+  html {
+    font-size: var(--base-font-size);
+    transition: font-size 0.25s ease;
+  }
+
+  body { 
+    background-color: #0b0c10 !important; 
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+  }
+
+  .elder-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1.25rem 2.5rem;
+    box-sizing: border-box;
+  }
+
+  .elder-top {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .elder-clock {
+    font-size: 2rem;
+    font-weight: 500;
+    color: #ffffff;
+    letter-spacing: 1px;
+  }
+  .elder-status {
+    font-size: 1rem;
+    color: #4ade80;
+    display: flex; 
+    align-items: center; 
+    gap: 0.5rem;
+  }
+  .elder-status .dot { 
+    width: 0.65rem; 
+    height: 0.65rem; 
+    border-radius: 50%; 
+    background: #22c55e; 
+  }
+
+  .elder-help-btn {
+    flex: 1;
+    min-height: 15rem;
+    border-radius: 1rem;
+    background: #7a2626 !important;
+    border: 2px solid rgba(239, 68, 68, 0.4) !important;
+    color: #ffffff;
+    font-size: 2.1rem;
+    font-weight: 600;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+  }
+  .elder-help-btn:hover {
+    background: #8b2c2c !important;
+    border-color: rgba(239, 68, 68, 0.6) !important;
+  }
+  .elder-help-btn:active {
+    background: #681f1f !important;
+    transform: scale(0.98);
+  }
+  .elder-help-btn .icon { font-size: 3.5rem; line-height: 1; }
+  .elder-help-btn .sub { 
+    font-size: 1rem; 
+    color: #fca5a5; 
+    font-weight: 400; 
+  }
+
+  .elder-secondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .elder-btn {
+    background: #14161d;
+    border: 1.5px solid #232630;
+    border-radius: 0.75rem;
+    padding: 1.25rem 0.85rem;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.15rem;
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: none;
+    transition: all 0.2s ease;
+  }
+  .elder-btn:hover {
+    background: #1a1e28;
+    border-color: #d4af37;
+    color: #f1c40f;
+  }
+  .elder-btn:active {
+    transform: scale(0.98);
+  }
+  .elder-btn .icon { font-size: 1.9rem; line-height: 1; }
+
+  .elder-footer {
+    text-align: center; 
+    margin-top: 1.5rem; 
+    font-size: 0.95rem; 
+    color: #8e929d;
+  }
+
+  .confirm-overlay {
+    position: fixed; 
+    inset: 0; 
+    background: rgba(6, 8, 14, 0.88);
+    display: none; 
+    align-items: center; 
+    justify-content: center;
+    z-index: 100;
+    padding: 1.25rem;
+    box-sizing: border-box;
+  }
+  .confirm-overlay.is-open { display: flex; }
+  .confirm-sheet {
+    position: relative;
+    width: 100%; 
+    max-width: 400px;
+    background: #14161d;
+    border: 1px solid #232630;
+    border-radius: 1rem;
+    padding: 1.8rem 1.5rem;
+    text-align: center;
+    box-shadow: none;
+  }
+  .confirm-sheet h2 { 
+    font-size: 1.5rem; 
+    color: #ffffff; 
+    margin: 0 0 0.6rem 0; 
+  }
+  .confirm-sheet p { 
+    font-size: 1rem; 
+    color: #8e929d; 
+    margin: 0 0 1.5rem 0; 
+    line-height: 1.5;
+  }
+  .confirm-actions { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.75rem; 
+  }
+  .btn-confirm-send {
+    background: #7a2626 !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.4) !important;
+    color: #ffffff !important;
+    font-size: 1.15rem;
+    padding: 0.9rem;
+    border-radius: 0px !important;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-confirm-send:hover {
+    background: #8b2c2c !important;
+  }
+  .btn-confirm-cancel {
+    background: transparent !important;
+    border: 1.5px solid #2d3240 !important;
+    color: #8e929d !important;
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 0px !important;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-confirm-cancel:hover {
+    border-color: #4a5568 !important;
+    color: #ffffff !important;
+  }
+
+  .call-avatar {
+    width: 5rem; 
+    height: 5rem; 
+    border-radius: 50%;
+    background: #1c202a;
+    border: 2px solid rgba(212, 175, 55, 0.4);
+    color: #f1c40f;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 1.9rem;
+    font-weight: 500;
+    margin: 0 auto 0.9rem;
+    transition: border-color 0.3s ease;
+  }
+  .call-avatar.in-call {
+    border-color: #22c55e;
+  }
+  
+  .call-controls { 
+    display: flex; 
+    justify-content: center; 
+    gap: 1.1rem; 
+    margin-top: 1.5rem; 
+  }
+  
+  .icon-btn {
+    width: 3.4rem; 
+    height: 3.4rem; 
+    border-radius: 50%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 1.25rem;
+    background: #1c202a;
+    color: #ffffff;
+    border: 1px solid #2d3240;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .icon-btn:hover {
+    background: #282e3d;
+    transform: scale(1.05);
+  }
+
+  .icon-btn.call-toggle {
+    background: #1d3326 !important;
+    border: 1.5px solid #22c55e !important;
+    color: #4ade80 !important;
+  }
+  .icon-btn.call-toggle:hover {
+    background: #234231 !important;
+    transform: scale(1.06);
+  }
+  .icon-btn.call-toggle.is-active { 
+    background: #8b2c2c !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.5) !important;
+    color: #fce8e8 !important;
+  }
+  .icon-btn.call-toggle.is-active:hover { 
+    background: #9d3434 !important;
+    transform: scale(1.06);
+  }
+  .icon-btn.active { 
+    background: rgba(212, 175, 55, 0.2) !important; 
+    border-color: #d4af37 !important;
+    color: #f1c40f !important; 
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #f1c40f;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.2s;
+  }
+  .modal-close-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #f39c12;
+    color: #ffffff;
+  }
+
+  .sending-overlay {
+    position: fixed; 
+    inset: 0; 
+    background: #101217;
+    border: 2px solid #7a2626;
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    flex-direction: column;
+    z-index: 110; 
+    color: #ffffff; 
+    text-align: center; 
+    padding: 1.8rem;
+    box-sizing: border-box;
+  }
+  .sending-overlay.is-open { display: flex; }
+  .sending-overlay h2 { font-size: 1.75rem; margin: 0 0 0.6rem 0; color: #ffffff; }
+  .sending-overlay p { color: #8e929d; font-size: 1rem; margin: 0 0 1.75rem 0; }
+  .btn-close-sending {
+    background: transparent !important;
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+    font-size: 1rem;
+    padding: 0.75rem 2.25rem;
+    border-radius: 0px !important;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-close-sending:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    color: #ffffff !important;
+  }
+</style>
+</head>
+<body>
+
+<div class="elder-shell">
+  <div class="elder-top">
+    <div class="elder-clock" id="clock">09:24</div>
+    <div class="elder-status"><span class="dot"></span>系統正常</div>
+  </div>
+
+  <button class="elder-help-btn" id="helpBtn" type="button">
+    <span>緊急求助</span>
+    <span class="sub">點擊立即發送求助通知</span>
+  </button>
+
+  <div class="elder-secondary">
+    <button class="elder-btn" id="callDaughterBtn" type="button">
+      <span class="icon">📞</span>
+      <span>聯絡女兒</span>
+    </button>
+    <button class="elder-btn" id="fontBtn" type="button">
+      <span class="icon">🔤</span>
+      <span id="fontBtnText">放大字體</span>
+    </button>
+  </div>
+
+  <div class="elder-footer">今天天氣涼爽，記得多喝水 🌤️</div>
+  <div class="elder-footer">
+    <a href="index.html" style="color:#6b7280; font-size:0.8rem; text-decoration:none;">
+      ← 返回原型索引（照顧者專用）
+    </a>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="callModal">
+  <div class="confirm-sheet">
+    <button class="modal-close-btn" id="closeCallModal">✕</button>
+    <div class="call-avatar" id="callAvatar">陳</div>
+    <h2 style="font-size: 1.4rem; margin-bottom: 0.25rem;">陳美玲（女兒）</h2>
+    <p style="color: #8e929d; font-size: 0.9rem; margin-bottom: 0;" id="callStatusText">撥號中…</p>
+    
+    <div class="call-controls">
+      <button class="icon-btn" id="muteBtn" title="靜音">🎤</button>
+      <button class="icon-btn call-toggle is-active" id="callToggleBtn" title="掛斷電話">📞</button>
+      <button class="icon-btn" id="camBtn" title="切換鏡頭">📷</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-sheet">
+    <h2>確定要求助嗎？</h2>
+    <p>將立即通知您的家人前來查看狀況</p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-send" id="confirmSend" type="button">確定求助</button>
+      <button class="btn-confirm-cancel" id="confirmCancel" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="sending-overlay" id="sendingOverlay">
+  <h2>已通知 陳美玲</h2>
+  <p>女兒收到通知，要來找你了</p>
+  <button class="btn-close-sending" id="closeSending" type="button">關閉畫面</button>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById("clock").textContent =
+      now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  const helpBtn = document.getElementById("helpBtn");
+  const confirmOverlay = document.getElementById("confirmOverlay");
+  const sendingOverlay = document.getElementById("sendingOverlay");
+
+  helpBtn.addEventListener("click", () => {
+    confirmOverlay.classList.add("is-open");
+  });
+
+  document.getElementById("confirmCancel").addEventListener("click", () => {
+    confirmOverlay.classList.remove("is-open");
+  });
+
+  document.getElementById("confirmSend").addEventListener("click", () => {
+    confirmOverlay.classList.remove("is-open");
+    sendingOverlay.classList.add("is-open");
+  });
+
+  document.getElementById("closeSending").addEventListener("click", () => {
+    sendingOverlay.classList.remove("is-open");
+  });
+
+  const callDaughterBtn = document.getElementById("callDaughterBtn");
+  const callModal = document.getElementById("callModal");
+  const closeCallModal = document.getElementById("closeCallModal");
+  const callToggleBtn = document.getElementById("callToggleBtn");
+  const callStatusText = document.getElementById("callStatusText");
+  const callAvatar = document.getElementById("callAvatar");
+  const muteBtn = document.getElementById("muteBtn");
+
+  let isCalling = false;
+  let callSeconds = 0;
+  let timerInterval = null;
+
+  function pad(num) {
+    return num.toString().padStart(2, "0");
+  }
+
+  function startCall() {
+    isCalling = true;
+    callToggleBtn.classList.add("is-active");
+    callToggleBtn.title = "掛斷電話";
+    callAvatar.classList.add("in-call");
+    callStatusText.textContent = "撥號中…";
+
+    setTimeout(() => {
+      if (!isCalling) return;
+      callSeconds = 0;
+      callStatusText.textContent = "通話中 · 00:00";
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        callSeconds++;
+        const mins = pad(Math.floor(callSeconds / 60));
+        const secs = pad(callSeconds % 60);
+        callStatusText.textContent = `通話中 · ${mins}:${secs}`;
+      }, 1000);
+    }, 1200);
+  }
+
+  function endCall() {
+    isCalling = false;
+    clearInterval(timerInterval);
+    callToggleBtn.classList.remove("is-active");
+    callToggleBtn.title = "撥打電話";
+    callAvatar.classList.remove("in-call");
+    callStatusText.textContent = "通話已結束";
+  }
+
+  callDaughterBtn.addEventListener("click", () => {
+    callModal.classList.add("is-open");
+    startCall();
+  });
+
+  closeCallModal.addEventListener("click", () => {
+    endCall();
+    callModal.classList.remove("is-open");
+  });
+
+  callToggleBtn.addEventListener("click", () => {
+    if (!isCalling) {
+      startCall();
+    } else {
+      endCall();
+    }
+  });
+
+  let muted = false;
+  muteBtn.addEventListener("click", (e) => {
+    muted = !muted;
+    e.currentTarget.classList.toggle("active", muted);
+  });
+
+  let fontLevel = 0;
+  const fontBtnText = document.getElementById("fontBtnText");
+  const rootElement = document.documentElement;
+
+  document.getElementById("fontBtn").addEventListener("click", () => {
+    fontLevel = (fontLevel + 1) % 3;
+    const fontSizes = ["16px", "20px", "24px"];
+    const labels = ["放大字體", "特大字體", "恢復字體"];
+    
+    rootElement.style.setProperty("--base-font-size", fontSizes[fontLevel]);
+    fontBtnText.textContent = labels[fontLevel];
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>三級警報機制</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  .page-head {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .btn-gold-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    border-radius: 0px !important;
+    width: fit-content;
+    cursor: pointer;
+    box-shadow: none !important;
+  }
+  .btn-gold-outline:hover {
+    background: rgba(212, 175, 55, 0.12) !important;
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+  }
+
+  .btn-gold-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+    padding: 6px 16px !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    letter-spacing: 1px;
+    border-radius: 0px !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    outline: none !important;
+    transition: all 0.2s ease;
+  }
+  .btn-gold-close:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+  }
+
+  .btn-gold-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #14161d;
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    border-radius: 0px !important;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease;
+    box-shadow: none !important;
+  }
+  .btn-gold-action:hover {
+    background: rgba(212, 175, 55, 0.18) !important;
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+  }
+
+  .levels { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 860px) { .levels { grid-template-columns: 1fr; } }
+
+  .level-card { 
+    border-width: 1px; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    background: #14161d; 
+    border-radius: 12px; 
+    padding: 24px;
+    box-shadow: none !important;
+  }
+  .level-card.l1 { border-color: var(--alert-1-yellow, #faad14); }
+  .level-card.l2 { border-color: var(--alert-2-orange, #f97316); }
+  .level-card.l3 { border-color: var(--alert-3-red, #ef4444); }
+  .level-card ul { margin: 12px 0 18px; padding-left: 18px; font-size: 13px; color: var(--color-text-muted, #9e9ea7); }
+  .level-card li { margin-bottom: 6px; }
+
+  .toast-l1 {
+    position: fixed; top: 80px; right: 24px; z-index: 150;
+    width: 300px;
+    background: #181b22;
+    border-left: 4px solid var(--alert-1-yellow, #faad14);
+    border-top: 1px solid #232630;
+    border-right: 1px solid #232630;
+    border-bottom: 1px solid #232630;
+    border-radius: 4px;
+    padding: 14px 16px;
+    box-shadow: none !important;
+    transform: translateX(120%);
+    transition: transform 300ms ease;
+  }
+  .toast-l1.show { transform: translateX(0); }
+
+  .overlay {
+    position: fixed; inset: 0; background: rgba(6,8,14,0.92);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+  }
+  .overlay.is-open { display: flex; }
+  .alert-panel {
+    position: relative;
+    width: min(440px, 100%);
+    background: #14161d;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: none !important;
+  }
+  .alert-panel.l2 { border: 1px solid var(--alert-2-orange, #f97316); }
+  .alert-panel.l3 { border: 1px solid var(--alert-3-red, #ef4444); }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #f1c40f;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0px;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
+  }
+  .modal-close-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #f39c12;
+    color: #ffffff;
+    transform: scale(1.05);
+  }
+
+  .ring-wrap { position: relative; width: 150px; height: 150px; margin: 10px auto 20px; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: #232630; stroke-width: 8; }
+  .ring-progress { 
+    fill: none; 
+    stroke: var(--alert-2-orange, #f97316); 
+    stroke-width: 8; 
+    stroke-linecap: round; 
+    transition: stroke-dashoffset 1s linear;
+  }
+  .ring-number { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 42px; color: #fff; font-weight: bold; }
+
+  .status-line {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 6px;
+    background: #0d0e12;
+    font-size: 13px; margin-bottom: 8px; text-align: left;
+    color: #fff;
+  }
+  .status-line .dot { width: 8px; height: 8px; border-radius: 50%; background: #8e929d; flex-shrink: 0; }
+  .status-line.done .dot { background: #22c55e; }
+  .spinner {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 2px solid var(--alert-3-red, #ef4444);
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body data-nav-active="09" style="background-color: #0b0c10; color: #e0e0e0;">
+<div id="topnav-mount"></div>
+
+<div class="app-shell" style="max-width: 1050px; margin: 0 auto; padding: 24px 20px 60px;">
+  <div class="page-head">
+    <div>
+      <h1 style="margin:0 0 8px 0; font-size:28px; color:#fff;">三級警報機制</h1>
+      <p style="margin:0; font-size:14px; color:#8e929d; line-height:1.6;">偵測功能觸發異常後皆導入此統一處理與升級。</p>
+    </div>
+    
+    <a class="btn-gold-outline" href="照顧者App與通知.html">
+      ← 查看警報歷史紀錄
+    </a>
+  </div>
+
+  <div class="grid levels">
+    <div class="card level-card l1">
+      <div>
+        <span class="badge badge-1">第一級</span>
+        <h3 style="margin-top:12px; color:#fff; font-size:18px;">異常停留</h3>
+        <ul>
+          <li>當偵測到 長時間靜止 或 停留，將推播手機 App 通知</li>
+          <li>App 內攝影機邊框閃爍提示</li>
+        </ul>
+      </div>
+      <div>
+        <button class="btn-gold-action" id="triggerL1">模擬觸發</button>
+      </div>
+    </div>
+
+    <div class="card level-card l2">
+      <div>
+        <span class="badge badge-2">第二級</span>
+        <h3 style="margin-top:12px; color:#fff; font-size:18px;">跌倒 或 深夜開門</h3>
+        <ul>
+          <li>當偵測到 跌倒偵測、深夜開門將觸發 15 秒可取消倒數</li>
+          <li>全螢幕警報畫面 及 現場畫面截圖</li>
+          <li>若倒計時結束後未取消將升級至第三級警報</li>
+        </ul>
+      </div>
+      <div>
+        <button class="btn-gold-action" id="triggerL2">模擬觸發</button>
+      </div>
+    </div>
+
+    <div class="card level-card l3">
+      <div>
+        <span class="badge badge-3">第三級</span>
+        <h3 style="margin-top:12px; color:#fff; font-size:18px;">自動求援</h3>
+        <ul>
+          <li>當 第二級倒數結束未取消時自動直撥緊急聯絡人</li>
+          <li>將透過 LINE / SMS 通知發送現場 5 秒截圖</li>
+        </ul>
+      </div>
+      <div>
+        <button class="btn-gold-action" id="triggerL3">模擬觸發</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-l1" id="toastL1">
+  <strong style="color: var(--alert-1-yellow, #faad14); font-size: 13px;">一級提示</strong>
+  <div style="font-size: 13px; margin-top: 6px; color:#fff;">浴室已滯留 10 分鐘，請確認長輩狀況</div>
+  <div style="margin-top: 12px;">
+    <button class="btn-gold-close" onclick="hideToast()">關閉</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlayL2">
+  <div class="alert-panel l2">
+    <button class="modal-close-btn" id="closeL2Cross" title="關閉">✕</button>
+
+    <span class="badge badge-2" style="margin-bottom:14px;">二級橙色警報</span>
+    <h2 style="color:#fff; margin-bottom:4px;">偵測到跌倒</h2>
+    <p style="color:#8e929d; font-size:13px; margin-bottom:16px;">浴室走道 ｜ 時間：剛剛</p>
+    <div style="aspect-ratio:16/10; border-radius:8px; background:linear-gradient(160deg,#1c2436,#10151f); margin-bottom:16px;"></div>
+    <div class="ring-wrap">
+      <svg width="150" height="150">
+        <circle class="ring-track" cx="75" cy="75" r="64"></circle>
+        <circle class="ring-progress" id="ringProgress" cx="75" cy="75" r="64"></circle>
+      </svg>
+      <div class="ring-number" id="ringNumber">15</div>
+    </div>
+    <p style="color:#8e929d; font-size:13px; margin-bottom:18px;">倒數結束仍未取消，將自動升級為紅色緊急並撥打緊急聯絡人。</p>
+    <button class="btn-gold-action" id="cancelL2" style="background:#1e222d;">已確認，取消警報</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlayL3">
+  <div class="alert-panel l3">
+    <button class="modal-close-btn" id="closeL3Cross" title="結束並關閉">✕</button>
+
+    <span class="badge badge-3" style="margin-bottom:14px;">三級紅色緊急</span>
+    <h2 style="color:#fff; margin-bottom:8px;">正在自動求援</h2>
+    <p style="color:#8e929d; font-size:13px; margin-bottom:18px;">倒數已結束，系統已自動採取以下行動：</p>
+    
+    <div class="status-line" id="statusCall"><span class="spinner"></span>撥打緊急聯絡人 陳美玲（女兒）</div>
+    <div class="status-line" id="statusClip"><span class="dot"></span>擷取現場 5 秒短片 / 截圖</div>
+    <div class="status-line" id="statusSms"><span class="dot"></span>透過 LINE / SMS 發送通知</div>
+    
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:18px;">
+      <button class="btn-gold-action" id="goToContact" style="background:#1e222d;">前往通話畫面</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  const toastL1 = document.getElementById("toastL1");
+  document.getElementById("triggerL1").addEventListener("click", () => {
+    toastL1.classList.add("show");
+    setTimeout(() => toastL1.classList.remove("show"), 6000);
+  });
+  function hideToast() { toastL1.classList.remove("show"); }
+
+  const overlayL2 = document.getElementById("overlayL2");
+  const overlayL3 = document.getElementById("overlayL3");
+  const ringNumber = document.getElementById("ringNumber");
+  const ringProgress = document.getElementById("ringProgress");
+
+  const TOTAL_DURATION = 15;
+  const RADIUS = 64;
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+  ringProgress.style.strokeDasharray = `${CIRCUMFERENCE} ${CIRCUMFERENCE}`;
+  ringProgress.style.strokeDashoffset = '0';
+
+  let countdownTimer = null;
+  let remainingTime = TOTAL_DURATION;
+
+  function closeL2() {
+    clearInterval(countdownTimer);
+    overlayL2.classList.remove("is-open");
+  }
+
+  function openL2() {
+    clearInterval(countdownTimer);
+    remainingTime = TOTAL_DURATION;
+    ringNumber.textContent = remainingTime;
+    ringProgress.style.strokeDashoffset = '0';
+    
+    overlayL2.classList.add("is-open");
+
+    countdownTimer = setInterval(() => {
+      remainingTime--;
+      ringNumber.textContent = remainingTime;
+
+      const offset = CIRCUMFERENCE - (remainingTime / TOTAL_DURATION) * CIRCUMFERENCE;
+      ringProgress.style.strokeDashoffset = offset;
+
+      if (remainingTime <= 0) {
+        clearInterval(countdownTimer);
+        overlayL2.classList.remove("is-open");
+        openL3();
+      }
+    }, 1000);
+  }
+
+  document.getElementById("triggerL2").addEventListener("click", openL2);
+  document.getElementById("cancelL2").addEventListener("click", closeL2);
+  document.getElementById("closeL2Cross").addEventListener("click", closeL2);
+
+  let l3Timeouts = [];
+
+  function closeL3() {
+    l3Timeouts.forEach(t => clearTimeout(t));
+    l3Timeouts = [];
+    overlayL3.classList.remove("is-open");
+  }
+
+  function openL3() {
+    closeL3(); 
+    overlayL3.classList.add("is-open");
+    
+    const call = document.getElementById("statusCall");
+    const clip = document.getElementById("statusClip");
+    const sms = document.getElementById("statusSms");
+    
+    call.innerHTML = '<span class="spinner"></span>撥打緊急聯絡人 陳美玲（女兒）';
+    call.classList.remove("done");
+    
+    clip.innerHTML = '<span class="dot"></span>擷取現場 5 秒短片 / 截圖';
+    clip.classList.remove("done");
+    
+    sms.innerHTML = '<span class="dot"></span>透過 LINE / SMS 發送通知';
+    sms.classList.remove("done");
+
+    l3Timeouts.push(setTimeout(() => {
+      call.classList.add("done");
+      call.innerHTML = '<span class="dot"></span>已接通緊急聯絡人 陳美玲（女兒）';
+    }, 1400));
+
+    l3Timeouts.push(setTimeout(() => {
+      clip.classList.add("done");
+      clip.innerHTML = '<span class="dot"></span>已擷取現場短片 / 截圖';
+    }, 2200));
+
+    l3Timeouts.push(setTimeout(() => {
+      sms.classList.add("done");
+      sms.innerHTML = '<span class="dot"></span>已透過 LINE / SMS 發送通知';
+    }, 3000));
+  }
+
+  document.getElementById("triggerL3").addEventListener("click", openL3);
+  
+  document.getElementById("closeL3Cross").addEventListener("click", closeL3);
+
+  document.getElementById("goToContact").addEventListener("click", () => {
+    window.location.href = "緊急聯繫與雙向語音.html?auto=1";
+  });
+</script>
+</body>
+</html>

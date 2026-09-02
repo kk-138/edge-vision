@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>隱私模式設定</title>
+<link rel="stylesheet" href="./css/design-system.css" />
+<style>
+  /* ========== 強制標頭由上至下排列 ========== */
+  .page-head {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* ========== 金黃框按鈕樣式 ========== */
+  .btn-gold-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px solid #d4af37; /* 金黃色細外框 */
+    color: #f1c40f;              /* 金黃色字體 */
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    border-radius: 0px;          /* 俐落方角 */
+    width: fit-content;
+    margin-top: 4px;
+  }
+  .btn-gold-outline:hover {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: #f39c12;
+    color: #f39c12;
+  }
+  /* ==================================== */
+
+  /* 單一直排容器 */
+  .single-column-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* ========== 現代 Switch 開關樣式 ========== */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #374151;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #ffffff;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .switch input:checked + .switch-slider {
+    background-color: #3b82f6;
+  }
+  .switch input:checked + .switch-slider:before {
+    transform: translateX(22px);
+  }
+  /* ========================================= */
+
+  .cam-row {
+    display: flex; 
+    align-items: center; 
+    gap: 14px;
+    padding: 14px 4px; 
+    border-bottom: 1px solid var(--color-border-soft, rgba(255, 255, 255, 0.08));
+  }
+  .cam-row:last-child { 
+    border-bottom: none; 
+  }
+  .cam-row__thumb {
+    width: 64px; 
+    height: 44px; 
+    border-radius: var(--radius-sm, 6px); 
+    flex-shrink: 0;
+    background: linear-gradient(160deg, #1c2436, #10151f);
+    position: relative; 
+    overflow: hidden;
+  }
+  .cam-row__thumb.masked::after {
+    content: "已遮蔽";
+    position: absolute; 
+    inset: 0;
+    background: repeating-linear-gradient(45deg, #05070c, #05070c 4px, #10151f 4px, #10151f 8px);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 10px; 
+    font-weight: 500;
+    color: var(--color-text-faint, #8a99ad);
+  }
+  .cam-row__name { 
+    flex: 1; 
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .cam-row__sub { 
+    font-size: 12px; 
+    color: var(--color-text-faint, #8a99ad); 
+    margin-top: 2px;
+  }
+
+  .banner {
+    display: none;
+    align-items: center; 
+    gap: 10px;
+    background: var(--color-surface-alt, #151b28);
+    border: 1px solid var(--color-border, #2d3748);
+    border-radius: var(--radius-sm, 8px);
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: var(--color-text, #ffffff);
+  }
+  .banner.show { 
+    display: flex; 
+  }
+  .banner-icon {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #eab308;
+  }
+</style>
+</head>
+<body data-nav-active="07">
+<div id="topnav-mount"></div>
+
+<div class="app-shell" style="max-width: 800px; margin: 0 auto; padding: 24px 16px;">
+  
+  <!-- 頁面頂部：標題、說明文字與正下方的按鈕 -->
+  <div class="page-head">
+    <h1 style="margin: 0; font-size: 28px;">隱私模式設定</h1>
+    <p class="muted" style="margin: 0; font-size: 14px; line-height: 1.6; max-width: 720px;">
+      隱私模式開啟期間系統僅暫停即時影像畫面，跌倒偵測、離床與緊急求救機制仍正常運作，安全警報不受影響。
+    </p>
+    <!-- 金黃框回到監看按鈕（排列在文字下方） -->
+    <a class="btn-gold-outline" href="即時影像.html">
+      ← 回到監看
+    </a>
+  </div>
+
+  <!-- 提示橫幅 -->
+  <div class="banner" id="privacyBanner">
+    <span class="banner-icon"></span>
+    <div>
+      隱私模式生效中，指定鏡頭畫面已暫停 —— 將於 <span id="autoResumeText" style="font-weight:bold;">30 分鐘</span>後自動恢復
+    </div>
+  </div>
+
+  <!-- 單一直排佈局 -->
+  <div class="single-column-layout">
+    
+    <!-- 1. 最上方：自動恢復時間設定 -->
+    <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--color-border, #2d3748); border-radius:12px; padding:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h3 style="margin:0 0 4px 0; font-size:16px;">自動恢復排程時間</h3>
+          <p class="muted" style="margin:0; font-size:13px;">設定開啟隱私模式後，自動切回正常監看畫面的倒數時間</p>
+        </div>
+        <div>
+          <select id="autoResumeSelect" style="min-width:180px; padding:8px 12px; background:var(--color-bg-elevated, #10151f); border:1px solid var(--color-border, #2d3748); border-radius:6px; color:#fff; font-size:14px;">
+            <option value="5">5 分鐘</option>
+            <option value="15">15 分鐘</option>
+            <option value="30" selected>30 分鐘</option>
+            <option value="60">60 分鐘 (1小時)</option>
+            <option value="120">120 分鐘 (2小時)</option>
+            <option value="0">持續遮蔽直到手動關閉</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 中間：一鍵全域開關與 8 間房間列表 -->
+    <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--color-border, #2d3748); border-radius:12px; padding:20px;">
+      <!-- 一鍵訪客模式 -->
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="margin:0 0 4px 0; font-size:16px;">一鍵全域訪客模式</h3>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="guestModeToggle" />
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <hr style="border:none; border-top:1px solid var(--color-border-soft, rgba(255,255,255,0.08)); margin: 16px 0;" />
+
+      <!-- 個別房間控制 -->
+      <h4 style="margin: 0 0 8px 0; font-size:13px; color:var(--color-text-faint, #8a99ad);">個別房間遮蔽控制</h4>
+      <div id="camList">
+        <!-- 房間 1 -->
+        <div class="cam-row" data-cam-id="cam_living_room">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">客廳<div class="cam-row__sub">公共區域・CAM-01</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_living_room" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 2 -->
+        <div class="cam-row" data-cam-id="cam_master_bedroom">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">主臥室<div class="cam-row__sub">私人區域・CAM-02</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_master_bedroom" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 3 -->
+        <div class="cam-row" data-cam-id="cam_second_bedroom">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">次臥室 (長輩房)<div class="cam-row__sub">私人區域・CAM-03</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_second_bedroom" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 4 -->
+        <div class="cam-row" data-cam-id="cam_bathroom_hallway">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">浴室走道<div class="cam-row__sub">私人區域・CAM-04</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_bathroom_hallway" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 5 -->
+        <div class="cam-row" data-cam-id="cam_kitchen">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">廚房<div class="cam-row__sub">公共區域・CAM-05</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_kitchen" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 6 -->
+        <div class="cam-row" data-cam-id="cam_dining">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">餐廳<div class="cam-row__sub">公共區域・CAM-06</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_dining" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 7 -->
+        <div class="cam-row" data-cam-id="cam_entrance">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">玄關大門<div class="cam-row__sub">出入口・CAM-07</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_entrance" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <!-- 房間 8 -->
+        <div class="cam-row" data-cam-id="cam_balcony">
+          <div class="cam-row__thumb"></div>
+          <div class="cam-row__name">後陽台<div class="cam-row__sub">工作區域・CAM-08</div></div>
+          <label class="switch">
+            <input type="checkbox" class="cam-toggle" data-target="cam_balcony" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  const guestToggle = document.getElementById("guestModeToggle");
+  const camToggles = document.querySelectorAll(".cam-toggle");
+  const banner = document.getElementById("privacyBanner");
+  const autoResumeSelect = document.getElementById("autoResumeSelect");
+  const autoResumeText = document.getElementById("autoResumeText");
+
+  function applyMask(rowEl, isMasked) {
+    if (!rowEl) return;
+    rowEl.querySelector(".cam-row__thumb").classList.toggle("masked", isMasked);
+  }
+
+  function updatePrivacyState() {
+    const states = {};
+    let anyActive = false;
+    let allActive = true;
+
+    camToggles.forEach((t) => {
+      const id = t.dataset.target;
+      const isChecked = t.checked;
+      states[id] = isChecked;
+      applyMask(t.closest(".cam-row"), isChecked);
+
+      if (isChecked) anyActive = true;
+      if (!isChecked) allActive = false;
+    });
+
+    guestToggle.checked = allActive;
+    banner.classList.toggle("show", anyActive);
+
+    // 儲存狀態供其他頁面讀取
+    localStorage.setItem("cameraPrivacyStates", JSON.stringify(states));
+  }
+
+  // 一鍵訪客模式 Switch 切換
+  guestToggle.addEventListener("change", () => {
+    const isEnabled = guestToggle.checked;
+    camToggles.forEach((t) => {
+      t.checked = isEnabled;
+      applyMask(t.closest(".cam-row"), isEnabled);
+    });
+    banner.classList.toggle("show", isEnabled);
+
+    const states = {};
+    camToggles.forEach((t) => states[t.dataset.target] = isEnabled);
+    localStorage.setItem("cameraPrivacyStates", JSON.stringify(states));
+  });
+
+  // 各房間 Switch 切換
+  camToggles.forEach((t) => {
+    t.addEventListener("change", updatePrivacyState);
+  });
+
+  // 自動恢復時間選單監聽
+  autoResumeSelect.addEventListener("change", () => {
+    const val = autoResumeSelect.value;
+    if (val === "0") {
+      autoResumeText.textContent = "手動切換";
+    } else {
+      autoResumeText.textContent = val + " 分鐘";
+    }
+    localStorage.setItem("autoResumeDuration", val);
+  });
+
+  // 初始化載入狀態
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedStates = JSON.parse(localStorage.getItem("cameraPrivacyStates") || "{}");
+    const savedDuration = localStorage.getItem("autoResumeDuration");
+
+    if (savedDuration) {
+      autoResumeSelect.value = savedDuration;
+      autoResumeText.textContent = savedDuration === "0" ? "手動切換" : savedDuration + " 分鐘";
+    }
+
+    camToggles.forEach((t) => {
+      if (savedStates[t.dataset.target] !== undefined) {
+        t.checked = savedStates[t.dataset.target];
+      }
+    });
+
+    updatePrivacyState();
+  });
+</script>
+</body>
+</html>
