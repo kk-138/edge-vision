@@ -120,11 +120,42 @@
   .feature-card:hover h3 {
     color: var(--color-primary-light);
   }
+
+  /* ================= 新增的切換樣式 ================= */
+  .hidden {
+    display: none !important;
+  }
+
+  .clickable-card {
+    cursor: pointer;
+    text-align: center;
+    padding: 40px 24px;
+  }
+
+  .clickable-card h3 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .back-btn {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+  }
+
+  .back-btn:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
 </style>
 </head>
 <body data-nav-active="index">
 
-<!-- 獨立左上角 Logo（無右側漢堡選單） -->
 <header class="custom-navbar">
   <a class="custom-brand" href="index.html">Edge-Vision</a>
 </header>
@@ -134,74 +165,123 @@
     <h1>輕量化攝影機與電子圍籬照護系統</h1>
   </section>
 
-  <div class="section-label">照顧者端</div>
-  <div class="feature-grid">
-    <a class="feature-card" href="即時影像.html">
-      <div>
-        <h3>即時監看介面</h3>
-        <p>9 台攝影機同時檢視，點擊放大單一畫面</p>
+  <!-- ================= 畫面一：身分選擇入口 (預設顯示) ================= -->
+  <div id="view-selection">
+    <div style="text-align: center; margin-bottom: 32px; color: var(--color-text-muted);">請選擇登入身分</div>
+    
+    <div class="feature-grid" style="max-width: 700px; margin: 0 auto; grid-template-columns: repeat(2, 1fr);">
+      <div class="feature-card clickable-card" onclick="switchView('caregiver')">
+        <h3>照顧者端</h3>
+        <p>即時監看、電子圍籬與警報設定</p>
       </div>
-    </a>
-    <a class="feature-card" href="危險區域入侵越界警報.html">
-      <div>
-        <h3>危險區域越界警報功能</h3>
-        <p>框選危險區域，一旦越界即觸發警報</p>
+      <div class="feature-card clickable-card" onclick="switchView('elderly')">
+        <h3>長輩端</h3>
+        <p>高齡友善大字體與求助介面</p>
       </div>
-    </a>
-    <a class="feature-card" href="跌倒與異常姿態偵測.html">
-      <div>
-        <h3>跌倒與異常姿態偵測</h3>
-        <p>偵測跌倒後觸發警報流程</p>
-      </div>
-    </a>
-    <a class="feature-card" href="長時間靜止偵測.html">
-      <div>
-        <h3>長時間靜止滯留警報</h3>
-        <p>App 內閃爍與推播</p>
-      </div>
-    </a>
-    <a class="feature-card" href="隱私模式開關.html">
-      <div>
-        <h3>隱私開關設定</h3>
-        <p>暫時遮蔽鏡頭保護私密時刻，讓客人來也能安心</p>
-      </div>
-    </a>
-    <a class="feature-card" href="離床與夜間活動監測.html">
-      <div>
-        <h3>離床與夜間活動監測</h3>
-        <p>夜間離床時間軸與深夜開門警報</p>
-      </div>
-    </a>
-    <a class="feature-card" href="三階段警報.html">
-      <div>
-        <h3>三級警報機制</h3>
-        <p>黃／橙／紅與 30 秒倒數</p>
-      </div>
-    </a>
-    <a class="feature-card" href="緊急聯繫與雙向語音.html">
-      <div>
-        <h3>緊急聯繫與雙向語音</h3>
-        <p>自動撥號、LINE/SMS 通知、語音通話</p>
-      </div>
-    </a>
-    <a class="feature-card" href="照顧者App與通知.html">
-      <div>
-        <h3>照顧者通知中心</h3>
-        <p>彙整歷史紀錄</p>
-      </div>
-    </a>
+    </div>
   </div>
 
-  <div class="section-label">長輩端</div>
-  <div class="feature-grid">
-    <a class="feature-card" href="高齡友善介面.html">
-      <div>
-        <h3>高齡友善介面</h3>
-        <p>大按鈕畫面與求助功能</p>
-      </div>
-    </a>
+  <!-- ================= 畫面二：照顧者端介面 (預設隱藏) ================= -->
+  <div id="view-caregiver" class="hidden">
+    <button class="back-btn" onclick="switchView('selection')">← 返回身分選擇</button>
+    
+    <div class="section-label">照顧者端功能總覽</div>
+    <div class="feature-grid">
+      <a class="feature-card" href="即時影像.html">
+        <div>
+          <h3>即時監看介面</h3>
+          <p>9 台攝影機同時檢視，點擊放大單一畫面</p>
+        </div>
+      </a>
+      <a class="feature-card" href="危險區域入侵越界警報.html">
+        <div>
+          <h3>危險區域越界警報功能</h3>
+          <p>框選危險區域，一旦越界即觸發警報</p>
+        </div>
+      </a>
+      <a class="feature-card" href="跌倒與異常姿態偵測.html">
+        <div>
+          <h3>跌倒與異常姿態偵測</h3>
+          <p>偵測跌倒後觸發警報流程</p>
+        </div>
+      </a>
+      <a class="feature-card" href="長時間靜止偵測.html">
+        <div>
+          <h3>長時間靜止滯留警報</h3>
+          <p>App 內閃爍與推播</p>
+        </div>
+      </a>
+      <a class="feature-card" href="隱私模式開關.html">
+        <div>
+          <h3>隱私開關設定</h3>
+          <p>暫時遮蔽鏡頭保護私密時刻，讓客人來也能安心</p>
+        </div>
+      </a>
+      <a class="feature-card" href="離床與夜間活動監測.html">
+        <div>
+          <h3>離床與夜間活動監測</h3>
+          <p>夜間離床時間軸與深夜開門警報</p>
+        </div>
+      </a>
+      <a class="feature-card" href="三階段警報.html">
+        <div>
+          <h3>三級警報機制</h3>
+          <p>黃／橙／紅與 30 秒倒數</p>
+        </div>
+      </a>
+      <a class="feature-card" href="緊急聯繫與雙向語音.html">
+        <div>
+          <h3>緊急聯繫與雙向語音</h3>
+          <p>自動撥號、LINE/SMS 通知、語音通話</p>
+        </div>
+      </a>
+      <a class="feature-card" href="照顧者App與通知.html">
+        <div>
+          <h3>照顧者通知中心</h3>
+          <p>彙整歷史紀錄</p>
+        </div>
+      </a>
+    </div>
   </div>
+
+  <!-- ================= 畫面三：長輩端介面 (預設隱藏) ================= -->
+  <div id="view-elderly" class="hidden">
+    <button class="back-btn" onclick="switchView('selection')">← 返回身分選擇</button>
+
+    <div class="section-label">長輩端功能總覽</div>
+    <div class="feature-grid">
+      <a class="feature-card" href="高齡友善介面.html">
+        <div>
+          <h3>高齡友善介面</h3>
+          <p>大按鈕畫面與求助功能</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
 </div>
+
+<!-- ================= 切換介面的 JavaScript ================= -->
+<script>
+  function switchView(target) {
+    // 1. 隱藏所有區塊
+    document.getElementById('view-selection').classList.add('hidden');
+    document.getElementById('view-caregiver').classList.add('hidden');
+    document.getElementById('view-elderly').classList.add('hidden');
+    
+    // 2. 根據點擊目標顯示對應區塊
+    if (target === 'caregiver') {
+      document.getElementById('view-caregiver').classList.remove('hidden');
+    } else if (target === 'elderly') {
+      document.getElementById('view-elderly').classList.remove('hidden');
+    } else {
+      document.getElementById('view-selection').classList.remove('hidden');
+    }
+    
+    // 將畫面滾回最上方，確保體驗順暢
+    window.scrollTo(0, 0);
+  }
+</script>
 
 </body>
 </html>
