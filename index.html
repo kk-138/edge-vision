@@ -3,267 +3,916 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EDGE-Vision 照護儀表板</title>
-<link rel="stylesheet" href="css/design-system.css" />
+<title>EDGE-Vision 照護系統</title>
+<link rel="stylesheet" href="./css/design-system.css" />
 <style>
-  /* ================= 佈局設定 ================= */
-  body {
-    display: flex;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden; /* 隱藏全域滾動條，改由內部區塊滾動 */
-  }
+  * { box-sizing: border-box; }
 
-  /* ================= 左側側欄選單 ================= */
-  .sidebar {
-    width: 240px;
-    background: var(--color-surface);
-    border-right: 1px solid var(--color-border);
+  body {
+    margin: 0;
+    background-color: #0b0c10;
+    color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  }
+  
+  .hidden { display: none !important; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .muted { color: #9e9ea7; font-size: 13px; }
+
+  /* 身分選擇頁面樣式 */
+  #view-selection {
     display: flex;
     flex-direction: column;
-    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* 中文主標題：對齊圖片中的襯線字體與金黃色漸層 */
+  .selection-title {
+    font-size: clamp(24px, 4vw, 36px);
+    font-family: "Noto Serif TC", "Source Han Serif TC", "Times New Roman", serif;
+    font-weight: 400;
+    margin: 0 0 10px 0;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  .sidebar-header {
-    padding: 24px;
-    border-bottom: 1px solid var(--color-border-soft);
+  /* 英文副標題 */
+  .selection-subtitle-en {
+    font-size: 16px;
+    color: #9e9ea7;
+    margin: 0 0 8px 0;
+    letter-spacing: 0.15em;
+  }
+  
+  .selection-subtitle {
+    color: #9e9ea7;
+    margin-bottom: 40px;
+    font-size: 15px;
   }
 
-  .brand-title {
+  .selection-grid {
+    display: flex;
+    gap: 24px;
+    max-width: 680px;
+    width: 100%;
+  }
+
+  .choice-card {
+    flex: 1;
+    background: #1a1a20;
+    border: 1.5px solid #2c2c36;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .choice-card:hover {
+    transform: translateY(-6px);
+    border-color: #d4af37;
+    background: #24242c;
+  }
+
+  .choice-card h3 { font-size: 24px; color: #fff; margin: 0 0 12px 0; }
+  .choice-card p { color: #9e9ea7; font-size: 14px; margin: 0; line-height: 1.5; }
+
+  /* 頂部固定導覽列（置中與對齊） */
+  .navbar-header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1280px;
+    background-color: transparent;
+    z-index: 2000;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .nav-brand {
     font-size: 20px;
+    color: #fff;
     font-weight: bold;
-    color: var(--color-primary);
     text-decoration: none;
     letter-spacing: 0.05em;
   }
 
-  .menu-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 0;
+  /* 漢堡按鈕 */
+  .hamburger-menu-wrapper { position: relative; z-index: 2010; }
+  
+  .hamburger-btn {
+    background: #1a1a20;
+    border: 1.5px solid #d4af37;
+    width: 44px;
+    height: 44px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
   }
 
-  .menu-category {
-    font-size: 12px;
-    color: var(--color-text-faint);
-    padding: 12px 24px 4px;
-    letter-spacing: 0.1em;
-  }
-
-  .menu-item {
-    position: relative;
-    padding: 12px 24px;
-    color: var(--color-text);
-    text-decoration: none;
-    font-size: 15px;
+  .hamburger-btn:hover { background: #24242c; }
+  
+  .hamburger-btn span {
     display: block;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
+    width: 20px;
+    height: 2px;
+    background-color: #d4af37;
+    transition: 0.3s;
   }
 
-  .menu-item:hover {
-    background: var(--color-surface-alt);
-    color: var(--color-primary-light);
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(2) { opacity: 0; }
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* 下拉選單 */
+  .hamburger-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 220px;
+    background: #16161a;
+    border: 1.5px solid #d4af37;
+    display: none;
+    flex-direction: column;
+    z-index: 2020;
+    box-shadow: -4px 12px 32px rgba(0, 0, 0, 0.85);
   }
 
-  .menu-item.active {
-    background: rgba(212, 175, 55, 0.1);
-    color: var(--color-primary);
-    border-left-color: var(--color-primary);
+  .hamburger-menu-wrapper.open .hamburger-dropdown { display: flex; }
+
+  .dropdown-item {
+    position: relative;
+    padding: 16px 20px;
+    color: #f5f5f7;
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px solid #202027;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .dropdown-item:last-child { border-bottom: none; }
+
+  .dropdown-item:hover {
+    background: rgba(212, 175, 55, 0.12);
+    color: #ebd07a;
+  }
+
+  /* 被選中頁面的樣式 (打勾) */
+  .dropdown-item.active {
+    background: rgba(212, 175, 55, 0.2);
+    color: #ebd07a;
     font-weight: bold;
   }
 
-  /* ===== 懸停提示框 (Tooltip) 特效 ===== */
-  .menu-item::after {
+  .dropdown-item.active::after {
+    content: "✓";
+    color: #d4af37;
+    font-size: 16px;
+    position: static;
+    transform: none;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* 選單提示框 (Tooltip：向左展開) */
+  .dropdown-item[data-tooltip]::before {
     content: attr(data-tooltip);
     position: absolute;
-    left: 100%; /* 出現在按鈕右側 */
+    right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-left: 10px;
+    margin-right: 12px;
     background: #1a1a20;
-    color: var(--color-primary-light);
-    padding: 8px 12px;
-    border: 1px solid var(--color-primary-dim);
+    color: #ebd07a;
+    padding: 8px 14px;
+    border: 1px solid #997c22;
     font-size: 13px;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    z-index: 1000;
+    transition: opacity 0.2s ease, margin-right 0.2s ease;
+    box-shadow: -4px 6px 16px rgba(0,0,0,0.6);
+    z-index: 2030;
   }
 
-  /* 為了不被 overflow 遮擋，側邊欄不能用 overflow: hidden */
-  .menu-item:hover::after {
+  .dropdown-item[data-tooltip]:hover::before {
     opacity: 1;
     visibility: visible;
-    margin-left: 16px; /* 創造一點滑入的小動畫 */
+    margin-right: 16px;
   }
 
-  /* ================= 右側主畫面 (攝影機視角) ================= */
-  .main-content {
-    flex: 1;
-    background: var(--color-bg);
-    display: flex;
-    flex-direction: column;
+  .page-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px;
+    padding-top: 110px;
   }
 
-  .top-bar {
-    height: 70px;
-    padding: 0 32px;
+  .breadcrumb {
+    font-size: 13px;
+    color: #8e929d;
+    margin-bottom: 8px;
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0 0 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .page-desc {
+    font-size: 14px;
+    color: #8e929d;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .status-pill-group {
     display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .status-pill {
+    display: inline-flex;
     align-items: center;
-    border-bottom: 1px solid var(--color-border-soft);
-    background: rgba(13, 13, 15, 0.8);
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
   }
 
-  .top-bar h2 {
-    margin: 0;
-    font-size: 18px;
-    color: var(--color-text);
+  .status-pill.online {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
   }
 
-  .camera-workspace {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
+  .status-pill.offline {
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* 9 宮格攝影機排列 */
-  .camera-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, minmax(200px, 1fr));
-    gap: 16px;
-    height: 100%;
-  }
-
-  .cam-box {
-    background: #000;
-    border: 1px solid var(--color-border);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-  }
-
-  .cam-box:hover {
-    border-color: var(--color-primary-dim);
-  }
-
-  .cam-label {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 4px 8px;
-    font-size: 12px;
-    color: #fff;
-    border: 1px solid var(--color-border-soft);
-  }
-  
-  .cam-status {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+  .dot-online {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--color-safe);
-    box-shadow: 0 0 8px var(--color-safe);
+    background-color: #10b981;
+    box-shadow: 0 0 8px #10b981;
+  }
+
+  .camera-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  @media (max-width: 900px) { .camera-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .camera-grid { grid-template-columns: 1fr; } }
+
+  .cam-card {
+    background: #14161d;
+    border: 1.5px solid #232630;
+    border-radius: 12px;
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cam-card:hover {
+    transform: translateY(-4px);
+    border-color: #d4af37;
+  }
+
+  .cam-card.status-active { border-color: #38bdf8; }
+  .cam-card.status-yellow { border-color: #f59e0b; }
+  .cam-card.status-orange { border-color: #f97316; }
+
+  /* 客廳相機串流影片樣式 */
+  .cam-card-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    z-index: 1;
+    background: #000;
+  }
+  .cam-card.is-streaming .cam-card-video {
+    display: block;
+  }
+  .cam-card.is-streaming .avatar-silhouette {
+    display: none;
+  }
+
+  .cam-header {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+  }
+
+  .cam-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #f8fafc;
+    background: rgba(11, 12, 16, 0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .rec-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ef4444;
+  }
+
+  .avatar-silhouette {
+    width: 110px;
+    height: 110px;
+    fill: #222d42;
+    z-index: 1;
+  }
+
+  .cam-card-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .cam-footer {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    z-index: 5;
+  }
+
+  .cam-status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(11, 12, 16, 0.7);
+  }
+
+  .cam-status-tag.safe { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+  .cam-status-tag.yellow { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+  .cam-status-tag.orange { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+
+  .cam-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 8, 14, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+  }
+
+  .cam-modal-backdrop.open { display: flex; }
+
+  .cam-modal-window {
+    background: #14161d;
+    border: 1.5px solid #d4af37;
+    width: 100%;
+    max-width: 860px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  .modal-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #1a1e28;
+    border-bottom: 1px solid #232630;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    color: #ffffff;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-close-btn {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #f1c40f;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 0px;
+  }
+  .modal-close-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    color: #ffffff;
+  }
+
+  .modal-view-area {
+    position: relative;
+    background: #06070a;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .modal-view-area video.modal-video-stream {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    z-index: 1;
+  }
+
+  .modal-view-area.is-streaming video.modal-video-stream {
+    display: block;
+  }
+  .modal-view-area.is-streaming svg.silhouette {
+    display: none;
+  }
+
+  .modal-view-area svg.silhouette {
+    width: 180px;
+    height: 180px;
+    fill: #1e293b;
+  }
+
+  .modal-view-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .modal-live-tag {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(239, 68, 68, 0.85);
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 0px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 4;
+  }
+
+  .modal-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #14161d;
+    border-top: 1px solid #232630;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-action-btn {
+    background: transparent;
+    border: 1.5px solid #2d3240;
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 0px !important;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .modal-action-btn:hover {
+    border-color: #4a5568;
+    background: #1a1e28;
+  }
+
+  .modal-action-btn.gold-btn {
+    border: 1.5px solid #d4af37 !important;
+    color: #f1c40f !important;
+  }
+
+  .modal-action-btn.gold-btn:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    color: #f39c12 !important;
+  }
+
+  #view-elderly {
+    padding: 48px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: 1.5px solid #d4af37;
+    color: #d4af37;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 32px;
+    transition: all 0.2s ease;
+  }
+
+  .back-btn:hover {
+    background: #d4af37;
+    color: #0d0d0f;
   }
 </style>
 </head>
 <body>
 
-  <!-- 左側側欄 -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <a href="#" class="brand-title">Edge-Vision</a>
+  <!-- 身分選擇畫面 -->
+  <div id="view-selection">
+    <!-- 中文主標題：對齊圖片的襯線體與金黃色漸層 -->
+    <h1 class="selection-title">輕量化攝影機與電子圍籬照護系統</h1>
+    <!-- 英文副標題 -->
+    <div class="selection-subtitle-en">Edge-Vision</div>
+    <div class="selection-subtitle">請選擇您的登入身分</div>
+    
+    <div class="selection-grid">
+      <div class="choice-card" onclick="switchView('caregiver')">
+        <h3>照顧者端</h3>
+        <p>即時監看、電子圍籬與警報設定</p>
+      </div>
+      <div class="choice-card" onclick="switchView('elderly')">
+        <h3>長輩端</h3>
+        <p>高齡友善大字體與求助介面</p>
+      </div>
     </div>
+  </div>
 
-    <div class="menu-list">
-      <div class="menu-category">照護者端</div>
-      <!-- data-tooltip 內填寫你想要懸停顯示的說明 -->
-      <a href="即時影像.html" class="menu-item active" data-tooltip="9 台攝影機同時檢視，點擊放大單一畫面">即時影像</a>
-      <a href="危險區域入侵越界警報.html" class="menu-item" data-tooltip="框選危險區域，一旦越界即觸發警報">越界警報</a>
-      <a href="跌倒與異常姿態偵測.html" class="menu-item" data-tooltip="偵測跌倒後觸發警報流程">姿態偵測</a>
-      <a href="長時間靜止偵測.html" class="menu-item" data-tooltip="App 內閃爍與推播">靜止警報</a>
-      <a href="隱私模式開關.html" class="menu-item" data-tooltip="暫時遮蔽鏡頭保護私密時刻">隱私模式</a>
-      <a href="離床與夜間活動監測.html" class="menu-item" data-tooltip="夜間離床時間軸與深夜開門警報">夜間監測</a>
-      <a href="三階段警報.html" class="menu-item" data-tooltip="黃／橙／紅與 30 秒倒數">三級警報</a>
-      <a href="緊急聯繫與雙向語音.html" class="menu-item" data-tooltip="自動撥號、LINE/SMS 通知、語音通話">緊急語音</a>
-      <a href="照顧者App與通知.html" class="menu-item" data-tooltip="彙整歷史紀錄">通知中心</a>
+  <!-- 照顧者端 (9宮格 + 漢堡選單) -->
+  <div id="view-dashboard" class="hidden">
+    
+    <!-- 頂部導覽列 -->
+    <header class="navbar-header">
+      <a href="index.html?view=caregiver" class="nav-brand">Edge-Vision</a>
+      
+      <div class="hamburger-menu-wrapper" id="hamburgerMenu">
+        <button class="hamburger-btn" onclick="toggleMenu()" aria-label="選單">
+          <span></span><span></span><span></span>
+        </button>
 
-      <div class="menu-category" style="margin-top: 16px;">長輩端</div>
-      <a href="高齡友善介面.html" class="menu-item" data-tooltip="大按鍵畫面與求助功能">高齡介面</a>
-    </div>
-  </aside>
+        <div class="hamburger-dropdown">
+          <a href="index.html?view=caregiver" class="dropdown-item active" data-tooltip="返回九宮格即時監看畫面">即時監看</a>
+          <a href="危險區域入侵越界警報.html" class="dropdown-item" data-tooltip="框選危險區域，一旦越界即觸發警報">越界警報</a>
+          <a href="跌倒與異常姿態偵測.html" class="dropdown-item" data-tooltip="偵測跌倒後觸發警報流程">姿態偵測</a>
+          <a href="長時間靜止偵測.html" class="dropdown-item" data-tooltip="App 內閃爍與推播">靜止警報</a>
+          <a href="隱私模式開關.html" class="dropdown-item" data-tooltip="暫時遮蔽鏡頭保護私密時刻">隱私模式</a>
+          <a href="離床與夜間活動監測.html" class="dropdown-item" data-tooltip="夜間離床時間軸與深夜開門警報">夜間監測</a>
+          <a href="三階段警報.html" class="dropdown-item" data-tooltip="黃／橙／紅與 30 秒倒數">三級警報</a>
+          <a href="緊急聯繫與雙向語音.html" class="dropdown-item" data-tooltip="自動撥號、LINE/SMS 通知、語音通話">緊急語音</a>
+          <a href="照顧者App與通知.html" class="dropdown-item" data-tooltip="彙整歷史紀錄">通知中心</a>
+          <a href="index.html" class="dropdown-item" data-tooltip="重新挑選照顧者或長輩身分">返回身分選擇</a>
+        </div>
+      </div>
+    </header>
 
-  <!-- 右側主內容 -->
-  <main class="main-content">
-    <div class="top-bar">
-      <h2>即時影像監控</h2>
-    </div>
+    <div class="page-container">
+      <div class="breadcrumb">照顧者端 · 首頁</div>
+      <h1 class="page-title">即時九宮格監看</h1>
+      <p class="page-desc">點擊任一畫面可放大檢視，客廳畫面已直接連線電腦鏡頭即時串流。</p>
 
-    <div class="camera-workspace">
-      <!-- 9宮格攝影機畫面 -->
-      <div class="camera-grid">
-        <div class="cam-box">
-          <div class="cam-label">CAM 01 - 客廳</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+      <div class="status-pill-group">
+        <div class="status-pill online"><span class="dot-online"></span>8 台在線</div>
+        <div class="status-pill offline">1 台離線</div>
+      </div>
+
+      <div class="camera-grid" id="cameraGrid">
+        <div class="cam-card" id="livingCard" data-name="客廳" data-status="正常 (即時鏡頭串流中)">
+          <div class="cam-header"><span class="cam-name">客廳</span><span class="rec-dot"></span></div>
+          <video class="cam-card-video" id="livingCardVideo" autoplay playsinline muted></video>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>即時串流</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 02 - 餐廳</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card" data-name="餐廳" data-status="正常">
+          <div class="cam-header"><span class="cam-name">餐廳</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>正常</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 03 - 走廊</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card status-yellow" data-name="廚房" data-status="黃色提示 (瓦斯爐旁停留)">
+          <div class="cam-header"><span class="cam-name">廚房</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag yellow">黃色提示</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 04 - 臥室 A</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card" data-name="主臥室" data-status="正常">
+          <div class="cam-header"><span class="cam-name">主臥室</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>正常</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 05 - 臥室 B</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card" data-name="浴室走道" data-status="正常">
+          <div class="cam-header"><span class="cam-name">浴室走道</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>正常</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 06 - 廚房</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card status-orange" data-name="樓梯口" data-status="橙色警報 (區域越界)">
+          <div class="cam-header"><span class="cam-name">樓梯口</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag orange">橙色警報</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 07 - 玄關</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card" data-name="書房" data-status="正常">
+          <div class="cam-header"><span class="cam-name">書房</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>正常</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 08 - 後門</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card" data-name="陽台" data-status="正常">
+          <div class="cam-header"><span class="cam-name">陽台</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>正常</span></div>
         </div>
-        <div class="cam-box">
-          <div class="cam-label">CAM 09 - 陽台</div>
-          <div class="cam-status"></div>
-          <span style="color: #333;">無畫面</span>
+
+        <div class="cam-card" data-name="大門玄關" data-status="正常">
+          <div class="cam-header"><span class="cam-name">大門玄關</span><span class="rec-dot"></span></div>
+          <svg class="avatar-silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg class="cam-card-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <div class="cam-footer"><span class="cam-status-tag safe"><span class="dot-online"></span>正常</span></div>
         </div>
       </div>
     </div>
-  </main>
+  </div>
+
+  <!-- 長輩端介面 -->
+  <div id="view-elderly" class="hidden">
+    <button class="back-btn" onclick="switchView('selection')">← 返回身分選擇</button>
+    <div>
+      <h2 style="color: #d4af37; margin-bottom: 24px;">長輩端功能</h2>
+      <div class="choice-card" style="text-align: left; max-width: 400px;" onclick="location.href='高齡友善介面.html'">
+        <h3>高齡友善介面</h3>
+        <p>大按鈕畫面與求助功能</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 放大檢視彈窗 -->
+  <div class="cam-modal-backdrop" id="camModal">
+    <div class="cam-modal-window">
+      <div class="modal-topbar">
+        <div class="modal-title"><span class="dot-online"></span><span id="modalCamName">攝影機</span></div>
+        <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-view-area" id="modalViewArea">
+        <span class="modal-live-tag">● LIVE</span>
+        <video class="modal-video-stream" id="modalVideoStream" autoplay playsinline muted></video>
+        <svg class="silhouette" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <svg class="modal-view-svg" id="modalSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="modal-controls">
+        <div id="modalCamStatus" style="font-size:14px; color:#8e929d;">狀態：正常</div>
+        <div class="modal-actions">
+          <button class="modal-action-btn gold-btn" id="btnToggleCamFeed">📷 開啟/關閉鏡頭</button>
+          <button class="modal-action-btn gold-btn" id="btnGoToConfig">設定危險區域</button>
+          <button class="modal-action-btn" onclick="window.location.href='緊急聯繫與雙向語音.html'">雙向對話</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/shared.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('view') === 'caregiver') {
+        switchView('caregiver');
+      }
+    });
+
+    function switchView(target) {
+      document.getElementById('view-selection').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-elderly').classList.add('hidden');
+      
+      if (target === 'caregiver') {
+        document.getElementById('view-dashboard').classList.remove('hidden');
+        renderAllCardsZones();
+        startLivingCamera();
+      } else if (target === 'elderly') {
+        document.getElementById('view-elderly').classList.remove('hidden');
+      } else {
+        document.getElementById('view-selection').classList.remove('hidden');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      const menu = document.getElementById('hamburgerMenu');
+      if (menu) menu.classList.remove('open');
+      window.scrollTo(0, 0);
+    }
+
+    function toggleMenu() {
+      document.getElementById('hamburgerMenu').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('hamburgerMenu');
+      if (menu && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+      }
+    });
+
+    // ========== 相機串流與互動管理 ==========
+    let globalCamStream = null;
+    const livingCard = document.getElementById("livingCard");
+    const livingCardVideo = document.getElementById("livingCardVideo");
+    const modalVideoStream = document.getElementById("modalVideoStream");
+    const modalViewArea = document.getElementById("modalViewArea");
+    const btnToggleCamFeed = document.getElementById("btnToggleCamFeed");
+
+    async function startLivingCamera() {
+      if (globalCamStream) return;
+      try {
+        globalCamStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        livingCardVideo.srcObject = globalCamStream;
+        livingCard.classList.add("is-streaming");
+        
+        if (currentSelectedCam === "客廳") {
+          modalVideoStream.srcObject = globalCamStream;
+          modalViewArea.classList.add("is-streaming");
+        }
+      } catch (err) {
+        console.warn("無法取得相機權限:", err);
+      }
+    }
+
+    function stopLivingCamera() {
+      if (globalCamStream) {
+        globalCamStream.getTracks().forEach(track => track.stop());
+        globalCamStream = null;
+        livingCardVideo.srcObject = null;
+        modalVideoStream.srcObject = null;
+        livingCard.classList.remove("is-streaming");
+        modalViewArea.classList.remove("is-streaming");
+      }
+    }
+
+    btnToggleCamFeed.addEventListener("click", () => {
+      if (globalCamStream) {
+        stopLivingCamera();
+      } else {
+        startLivingCamera();
+      }
+    });
+
+    function renderAllCardsZones() {
+      const savedZones = JSON.parse(localStorage.getItem("edge_vision_zones") || "{}");
+      document.querySelectorAll(".cam-card").forEach(card => {
+        const name = card.getAttribute("data-name");
+        const svg = card.querySelector(".cam-card-svg");
+        if (!svg) return;
+        svg.innerHTML = "";
+
+        const zoneList = savedZones[name];
+        if (zoneList && Array.isArray(zoneList) && zoneList.length > 0) {
+          const latestZone = zoneList[zoneList.length - 1];
+          if (latestZone.pointsPercent && latestZone.pointsPercent.length >= 3) {
+            const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            poly.setAttribute("points", latestZone.pointsPercent.map(p => `${p.x},${p.y}`).join(" "));
+            
+            const isOrange = latestZone.level === "2";
+            poly.setAttribute("fill", isOrange ? "rgba(249, 115, 22, 0.35)" : "rgba(245, 158, 11, 0.35)");
+            poly.setAttribute("stroke", isOrange ? "#f97316" : "#f59e0b");
+            poly.setAttribute("stroke-width", "1.5");
+            svg.appendChild(poly);
+          }
+        }
+      });
+    }
+
+    let currentSelectedCam = "客廳";
+    const modal = document.getElementById("camModal");
+    const modalName = document.getElementById("modalCamName");
+    const modalStatus = document.getElementById("modalCamStatus");
+    const modalSvg = document.getElementById("modalSvg");
+    const closeBtn = document.getElementById("modalCloseBtn");
+    const btnGoToConfig = document.getElementById("btnGoToConfig");
+
+    document.querySelectorAll(".cam-card").forEach(card => {
+      card.addEventListener("click", () => {
+        currentSelectedCam = card.getAttribute("data-name");
+        const status = card.getAttribute("data-status");
+        
+        modalName.textContent = currentSelectedCam;
+        modalStatus.textContent = "狀態：" + status;
+
+        if (currentSelectedCam === "客廳" && globalCamStream) {
+          modalVideoStream.srcObject = globalCamStream;
+          modalViewArea.classList.add("is-streaming");
+        } else {
+          modalViewArea.classList.remove("is-streaming");
+        }
+
+        modalSvg.innerHTML = "";
+        const savedZones = JSON.parse(localStorage.getItem("edge_vision_zones") || "{}");
+        const zoneList = savedZones[currentSelectedCam];
+        if (zoneList && Array.isArray(zoneList) && zoneList.length > 0) {
+          const latestZone = zoneList[zoneList.length - 1];
+          if (latestZone.pointsPercent && latestZone.pointsPercent.length >= 3) {
+            const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            poly.setAttribute("points", latestZone.pointsPercent.map(p => `${p.x},${p.y}`).join(" "));
+            const isOrange = latestZone.level === "2";
+            poly.setAttribute("fill", isOrange ? "rgba(249, 115, 22, 0.35)" : "rgba(245, 158, 11, 0.35)");
+            poly.setAttribute("stroke", isOrange ? "#f97316" : "#f59e0b");
+            poly.setAttribute("stroke-width", "1.5");
+            modalSvg.appendChild(poly);
+          }
+        }
+
+        modal.classList.add("open");
+      });
+    });
+
+    btnGoToConfig.addEventListener("click", () => {
+      window.location.href = `危險區域入侵越界警報.html?cam=${encodeURIComponent(currentSelectedCam)}`;
+    });
+
+    closeBtn.addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("open"); });
+  </script>
 
 </body>
 </html>

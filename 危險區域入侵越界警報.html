@@ -7,28 +7,190 @@
 <link rel="stylesheet" href="./css/design-system.css" />
 
 <style>
-  .back-btn-container { margin: 20px 0 36px 0; }
+  * { box-sizing: border-box; }
 
-  .btn-back {
-    display: inline-flex;
+  /* 頂部固定導覽列（已拿掉黑底與邊框，改為透明） */
+  .navbar-header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1280px;
+    background-color: transparent;
+    z-index: 2000;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    background: rgba(26, 26, 32, 0.85);
-    border: 1.5px solid var(--color-primary, #d4af37);
-    color: var(--color-primary-light, #ebd07a);
-    padding: 9px 20px;
-    font-size: 14px;
-    text-decoration: none;
-    border-radius: 0px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-    transition: all 0.25s ease;
+    box-sizing: border-box;
   }
 
-  .btn-back:hover {
-    background: rgba(212, 175, 55, 0.18);
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: none !important;
+  .nav-brand {
+    font-size: 20px;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+
+  /* 漢堡按鈕 */
+  .hamburger-menu-wrapper { position: relative; z-index: 2010; }
+  
+  .hamburger-btn {
+    background: #1a1a20;
+    border: 1.5px solid #d4af37;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .hamburger-btn:hover { background: #24242c; }
+  
+  .hamburger-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: #d4af37;
+    transition: 0.3s;
+  }
+
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(2) { opacity: 0; }
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* 下拉選單 */
+  .hamburger-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 220px;
+    background: #16161a;
+    border: 1.5px solid #d4af37;
+    display: none;
+    flex-direction: column;
+    z-index: 2020;
+    box-shadow: -4px 12px 32px rgba(0, 0, 0, 0.85);
+  }
+
+  .hamburger-menu-wrapper.open .hamburger-dropdown { display: flex; }
+
+  .dropdown-item {
+    position: relative;
+    padding: 16px 20px;
+    color: #f5f5f7;
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px solid #202027;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .dropdown-item:last-child { border-bottom: none; }
+
+  .dropdown-item:hover {
+    background: rgba(212, 175, 55, 0.12);
+    color: #ebd07a;
+  }
+
+  /* 被選中頁面的樣式 (打勾) */
+  .dropdown-item.active {
+    background: rgba(212, 175, 55, 0.2);
+    color: #ebd07a;
+    font-weight: bold;
+  }
+
+  .dropdown-item.active::after {
+    content: "✓";
+    color: #d4af37;
+    font-size: 16px;
+    position: static;
+    transform: none;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* 選單提示框 (Tooltip：向左展開) */
+  .dropdown-item[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 12px;
+    background: #1a1a20;
+    color: #ebd07a;
+    padding: 8px 14px;
+    border: 1px solid #997c22;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, margin-right 0.2s ease;
+    box-shadow: -4px 6px 16px rgba(0,0,0,0.6);
+    z-index: 2030;
+  }
+
+  .dropdown-item[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+    margin-right: 16px;
+  }
+
+  /* 內容容器 */
+  .app-shell {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px;
+    padding-top: 110px;
+    width: 100%;
+  }
+
+  /* 標頭與按鈕區塊排版 */
+  .page-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* 返回監看金黃細框按鈕樣式 */
+  .btn-gold-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px solid #d4af37;
+    color: #f1c40f;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    border-radius: 0px;
+    width: fit-content;
+    margin-top: 4px;
+  }
+  .btn-gold-outline:hover {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: #f39c12;
+    color: #f39c12;
   }
 
   .layout { 
@@ -55,14 +217,6 @@
     width: 100%; 
     height: 100%; 
     pointer-events: none;
-  }
-  .stage__hint {
-    position: absolute; top: 12px; left: 12px;
-    font-size: 12px; color: var(--color-text-muted);
-    background: rgba(0,0,0,0.75); padding: 6px 12px; 
-    border-radius: 0px; border: 1px solid rgba(255,255,255,0.1);
-    pointer-events: none;
-    z-index: 5;
   }
 
   .setting-form {
@@ -170,22 +324,43 @@
   .btn-icon-action.delete { color: #ff7875; border-color: rgba(255,77,79,0.3); }
 </style>
 </head>
-<body data-nav-active="04">
-<div id="topnav-mount"></div>
+<body data-nav-active="04" style="background-color: #0b0c10; color: #e0e0e0;">
+
+<header class="navbar-header">
+  <a href="index.html?view=caregiver" class="nav-brand">Edge-Vision</a>
+  
+  <div class="hamburger-menu-wrapper" id="hamburgerMenu">
+    <button class="hamburger-btn" onclick="toggleMenu()" aria-label="選單">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="hamburger-dropdown">
+      <a href="index.html?view=caregiver" class="dropdown-item" data-tooltip="返回九宮格即時監看畫面">即時監看</a>
+      <a href="危險區域入侵越界警報.html" class="dropdown-item active" data-tooltip="框選危險區域，一旦越界即觸發警報">越界警報</a>
+      <a href="跌倒與異常姿態偵測.html" class="dropdown-item" data-tooltip="偵測跌倒後觸發警報流程">姿態偵測</a>
+      <a href="長時間靜止偵測.html" class="dropdown-item" data-tooltip="App 內閃爍與推播">靜止警報</a>
+      <a href="隱私模式開關.html" class="dropdown-item" data-tooltip="暫時遮蔽鏡頭保護私密時刻">隱私模式</a>
+      <a href="離床與夜間活動監測.html" class="dropdown-item" data-tooltip="夜間離床時間軸與深夜開門警報">夜間監測</a>
+      <a href="三階段警報.html" class="dropdown-item" data-tooltip="黃／橙／紅與 30 秒倒數">三級警報</a>
+      <a href="緊急聯繫與雙向語音.html" class="dropdown-item" data-tooltip="自動撥號, LINE/SMS 通知, 語音通話">緊急語音</a>
+      <a href="照顧者App與通知.html" class="dropdown-item" data-tooltip="彙整歷史紀錄">通知中心</a>
+      <a href="index.html" class="dropdown-item" data-tooltip="重新挑選照顧者或長輩身分">返回身分選擇</a>
+    </div>
+  </div>
+</header>
 
 <div class="app-shell">
-  <div>
-    <h1>危險區域越界警報</h1>
-    <p>在畫面上點擊描出危險區域頂點，長輩進入該區域即觸發警報。</p>
-  </div>
-
-  <div class="back-btn-container">
-    <a class="btn-back" href="即時影像.html">
-      <span>←</span> 回到監看
+  <div class="page-head">
+    <h1 style="margin: 0; font-size: 28px;">危險區域越界警報</h1>
+    <p class="muted" style="margin: 0; font-size: 14px; line-height: 1.6;">
+      在畫面上點擊描出危險區域頂點，長輩進入該區域即觸發警報。
+    </p>
+    <a class="btn-gold-outline" href="index.html?view=caregiver">
+      ← 回到監看
     </a>
   </div>
 
-  <div class="grid layout">
+  <div class="grid layout" style="margin-top: 24px;">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <h3 id="currentCamTitle"></h3>
@@ -198,7 +373,7 @@
       </div>
 
       <div class="row" style="margin-top:16px; justify-content: flex-end; gap: 12px;">
-        <button class="btn-action-ghost" id="newZoneBtn" type="button">+ 重新繪製</button>
+        <button class="btn-action-ghost" id="newZoneBtn" type="button">清除重新繪製</button>
         <button class="btn-action-primary" id="saveBtn" type="button">儲存修改</button>
       </div>
     </div>
@@ -239,6 +414,17 @@
 
 <script src="js/shared.js"></script>
 <script>
+  function toggleMenu() {
+    document.getElementById('hamburgerMenu').classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('hamburgerMenu');
+    if (menu && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+
   const urlParams = new URLSearchParams(window.location.search);
   const currentCam = urlParams.get("cam") || "樓梯口";
   document.getElementById("currentCamTitle").textContent = `${currentCam}`;
@@ -249,7 +435,6 @@
   const editingNotice = document.getElementById("editingNotice");
   const saveBtn = document.getElementById("saveBtn");
   const newZoneBtn = document.getElementById("newZoneBtn");
-  const stageHint = document.getElementById("stageHint");
 
   let pointsPercent = [];
 
@@ -284,7 +469,7 @@
       const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       c.setAttribute("cx", p.x);
       c.setAttribute("cy", p.y);
-      c.setAttribute("r", 2);
+      c.setAttribute("r", 2.5);
       c.setAttribute("fill", color);
       svg.appendChild(c);
     });
@@ -331,6 +516,7 @@
     const rect = stage.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * 100;
     const py = ((e.clientY - rect.top) / rect.height) * 100;
+    
     pointsPercent.push({ x: Number(px.toFixed(2)), y: Number(py.toFixed(2)) });
     renderSvg();
   });
@@ -338,7 +524,8 @@
   newZoneBtn.addEventListener("click", () => {
     pointsPercent = [];
     renderSvg();
-    if (stageHint) stageHint.textContent = "已清空畫布，請點擊畫面新增頂點（至少 3 點）";
+    editingNotice.style.display = "none";
+    saveBtn.textContent = "儲存區域";
   });
 
   saveBtn.addEventListener("click", () => {

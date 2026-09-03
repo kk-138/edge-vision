@@ -6,7 +6,160 @@
 <title>隱私模式設定</title>
 <link rel="stylesheet" href="./css/design-system.css" />
 <style>
-  /* ========== 強制標頭由上至下排列 ========== */
+  * { box-sizing: border-box !important; }
+
+  /* 頂部固定導覽列（置中與對齊） */
+  .navbar-header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1280px;
+    background-color: transparent;
+    z-index: 2000;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .nav-brand {
+    font-size: 20px;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+
+  /* 漢堡按鈕 */
+  .hamburger-menu-wrapper { position: relative; z-index: 2010; }
+  
+  .hamburger-btn {
+    background: #1a1a20;
+    border: 1.5px solid #d4af37;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .hamburger-btn:hover { background: #24242c; }
+  
+  .hamburger-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: #d4af37;
+    transition: 0.3s;
+  }
+
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(2) { opacity: 0; }
+  .hamburger-menu-wrapper.open .hamburger-btn span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* 下拉選單 */
+  .hamburger-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 220px;
+    background: #16161a;
+    border: 1.5px solid #d4af37;
+    display: none;
+    flex-direction: column;
+    z-index: 2020;
+    box-shadow: -4px 12px 32px rgba(0, 0, 0, 0.85);
+  }
+
+  .hamburger-menu-wrapper.open .hamburger-dropdown { display: flex; }
+
+  .dropdown-item {
+    position: relative;
+    padding: 16px 20px;
+    color: #f5f5f7;
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px solid #202027;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .dropdown-item:last-child { border-bottom: none; }
+
+  .dropdown-item:hover {
+    background: rgba(212, 175, 55, 0.12);
+    color: #ebd07a;
+  }
+
+  /* 被選中頁面的樣式 (打勾) */
+  .dropdown-item.active {
+    background: rgba(212, 175, 55, 0.2);
+    color: #ebd07a;
+    font-weight: bold;
+  }
+
+  .dropdown-item.active::after {
+    content: "✓";
+    color: #d4af37;
+    font-size: 16px;
+    position: static;
+    transform: none;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* 選單提示框 (Tooltip：向左展開) */
+  .dropdown-item[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 12px;
+    background: #1a1a20;
+    color: #ebd07a;
+    padding: 8px 14px;
+    border: 1px solid #997c22;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, margin-right 0.2s ease;
+    box-shadow: -4px 6px 16px rgba(0,0,0,0.6);
+    z-index: 2030;
+  }
+
+  .dropdown-item[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+    margin-right: 16px;
+  }
+
+  /* 統一的殼層與對齊容器 */
+  .app-shell {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 16px;
+    padding-top: 110px;
+    width: 100%;
+  }
+
+  /* 頁面頂部：與下方卡片同寬、完美對齊 */
   .page-head {
     display: flex !important;
     flex-direction: column !important;
@@ -14,24 +167,25 @@
     justify-content: flex-start !important;
     gap: 16px;
     margin-bottom: 24px;
+    width: 100%;
   }
 
-  /* ========== 金黃框按鈕樣式 ========== */
+  /* 金黃框按鈕樣式 */
   .btn-gold-outline {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     background: transparent;
-    border: 1.5px solid #d4af37; /* 金黃色細外框 */
-    color: #f1c40f;              /* 金黃色字體 */
+    border: 1.5px solid #d4af37;
+    color: #f1c40f;
     padding: 10px 22px;
     font-size: 15px;
     font-weight: 400;
     text-decoration: none;
     letter-spacing: 1px;
     transition: all 0.2s ease;
-    border-radius: 0px;          /* 俐落方角 */
+    border-radius: 0px;
     width: fit-content;
     margin-top: 4px;
   }
@@ -40,18 +194,16 @@
     border-color: #f39c12;
     color: #f39c12;
   }
-  /* ==================================== */
 
   /* 單一直排容器 */
   .single-column-layout {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    max-width: 760px;
-    margin: 0 auto;
+    width: 100%;
   }
 
-  /* ========== 現代 Switch 開關樣式 ========== */
+  /* 現代 Switch 開關樣式 */
   .switch {
     position: relative;
     display: inline-block;
@@ -94,7 +246,6 @@
   .switch input:checked + .switch-slider:before {
     transform: translateX(22px);
   }
-  /* ========================================= */
 
   .cam-row {
     display: flex; 
@@ -162,24 +313,43 @@
   }
 </style>
 </head>
-<body data-nav-active="07">
-<div id="topnav-mount"></div>
+<body data-nav-active="07" style="background-color: #0b0c10; color: #e0e0e0;">
 
-<div class="app-shell" style="max-width: 800px; margin: 0 auto; padding: 24px 16px;">
+<header class="navbar-header">
+  <a href="index.html?view=caregiver" class="nav-brand">Edge-Vision</a>
   
-  <!-- 頁面頂部：標題、說明文字與正下方的按鈕 -->
+  <div class="hamburger-menu-wrapper" id="hamburgerMenu">
+    <button class="hamburger-btn" onclick="toggleMenu()" aria-label="選單">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="hamburger-dropdown">
+      <a href="index.html?view=caregiver" class="dropdown-item" data-tooltip="返回九宮格即時監看畫面">即時監看</a>
+      <a href="危險區域入侵越界警報.html" class="dropdown-item" data-tooltip="框選危險區域，一旦越界即觸發警報">越界警報</a>
+      <a href="跌倒與異常姿態偵測.html" class="dropdown-item" data-tooltip="偵測跌倒後觸發警報流程">姿態偵測</a>
+      <a href="長時間靜止偵測.html" class="dropdown-item" data-tooltip="App 內閃爍與推播">靜止警報</a>
+      <a href="隱私模式開關.html" class="dropdown-item active" data-tooltip="暫時遮蔽鏡頭保護私密時刻">隱私模式</a>
+      <a href="離床與夜間活動監測.html" class="dropdown-item" data-tooltip="夜間離床時間軸與深夜開門警報">夜間監測</a>
+      <a href="三階段警報.html" class="dropdown-item" data-tooltip="黃／橙／紅與 30 秒倒數">三級警報</a>
+      <a href="緊急聯繫與雙向語音.html" class="dropdown-item" data-tooltip="自動撥號、LINE/SMS 通知、語音通話">緊急語音</a>
+      <a href="照顧者App與通知.html" class="dropdown-item" data-tooltip="彙整歷史紀錄">通知中心</a>
+      <a href="index.html" class="dropdown-item" data-tooltip="重新挑選照顧者或長輩身分">返回身分選擇</a>
+    </div>
+  </div>
+</header>
+
+<div class="app-shell">
+  
   <div class="page-head">
     <h1 style="margin: 0; font-size: 28px;">隱私模式設定</h1>
     <p class="muted" style="margin: 0; font-size: 14px; line-height: 1.6; max-width: 720px;">
       隱私模式開啟期間系統僅暫停即時影像畫面，跌倒偵測、離床與緊急求救機制仍正常運作，安全警報不受影響。
     </p>
-    <!-- 金黃框回到監看按鈕（排列在文字下方） -->
-    <a class="btn-gold-outline" href="即時影像.html">
+    <a class="btn-gold-outline" href="index.html?view=caregiver">
       ← 回到監看
     </a>
   </div>
 
-  <!-- 提示橫幅 -->
   <div class="banner" id="privacyBanner">
     <span class="banner-icon"></span>
     <div>
@@ -187,10 +357,8 @@
     </div>
   </div>
 
-  <!-- 單一直排佈局 -->
   <div class="single-column-layout">
     
-    <!-- 1. 最上方：自動恢復時間設定 -->
     <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--color-border, #2d3748); border-radius:12px; padding:20px;">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
@@ -210,9 +378,7 @@
       </div>
     </div>
 
-    <!-- 2. 中間：一鍵全域開關與 8 間房間列表 -->
     <div class="card" style="background:var(--color-surface, #1e2638); border:1px solid var(--color-border, #2d3748); border-radius:12px; padding:20px;">
-      <!-- 一鍵訪客模式 -->
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
           <h3 style="margin:0 0 4px 0; font-size:16px;">一鍵全域訪客模式</h3>
@@ -225,10 +391,8 @@
 
       <hr style="border:none; border-top:1px solid var(--color-border-soft, rgba(255,255,255,0.08)); margin: 16px 0;" />
 
-      <!-- 個別房間控制 -->
       <h4 style="margin: 0 0 8px 0; font-size:13px; color:var(--color-text-faint, #8a99ad);">個別房間遮蔽控制</h4>
       <div id="camList">
-        <!-- 房間 1 -->
         <div class="cam-row" data-cam-id="cam_living_room">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">客廳<div class="cam-row__sub">公共區域・CAM-01</div></div>
@@ -237,7 +401,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 2 -->
         <div class="cam-row" data-cam-id="cam_master_bedroom">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">主臥室<div class="cam-row__sub">私人區域・CAM-02</div></div>
@@ -246,7 +409,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 3 -->
         <div class="cam-row" data-cam-id="cam_second_bedroom">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">次臥室 (長輩房)<div class="cam-row__sub">私人區域・CAM-03</div></div>
@@ -255,7 +417,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 4 -->
         <div class="cam-row" data-cam-id="cam_bathroom_hallway">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">浴室走道<div class="cam-row__sub">私人區域・CAM-04</div></div>
@@ -264,7 +425,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 5 -->
         <div class="cam-row" data-cam-id="cam_kitchen">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">廚房<div class="cam-row__sub">公共區域・CAM-05</div></div>
@@ -273,7 +433,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 6 -->
         <div class="cam-row" data-cam-id="cam_dining">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">餐廳<div class="cam-row__sub">公共區域・CAM-06</div></div>
@@ -282,7 +441,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 7 -->
         <div class="cam-row" data-cam-id="cam_entrance">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">玄關大門<div class="cam-row__sub">出入口・CAM-07</div></div>
@@ -291,7 +449,6 @@
             <span class="switch-slider"></span>
           </label>
         </div>
-        <!-- 房間 8 -->
         <div class="cam-row" data-cam-id="cam_balcony">
           <div class="cam-row__thumb"></div>
           <div class="cam-row__name">後陽台<div class="cam-row__sub">工作區域・CAM-08</div></div>
@@ -308,6 +465,17 @@
 
 <script src="js/shared.js"></script>
 <script>
+  function toggleMenu() {
+    document.getElementById('hamburgerMenu').classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('hamburgerMenu');
+    if (menu && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+
   const guestToggle = document.getElementById("guestModeToggle");
   const camToggles = document.querySelectorAll(".cam-toggle");
   const banner = document.getElementById("privacyBanner");
